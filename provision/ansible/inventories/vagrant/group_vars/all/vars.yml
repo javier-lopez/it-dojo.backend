@@ -118,7 +118,7 @@ docker_swarm_tcp_port: 2377
 # Dockerized: traefik    #
 ##########################
 traefik_tcp_port: 80
-traefik_monitor_tcp_port: 8888
+traefik_monitor_tcp_port: 8080
 traefik_image: 'traefik:v1.5-alpine'
 traefik_subdomains: ['traefik']
 traefik_mode: ['global'] #or ['replicated', 1]
@@ -127,7 +127,8 @@ traefik_mode: ['global'] #or ['replicated', 1]
 ##########################
 # Dockerized: portainer  #
 ##########################
-portainer_tcp_port: 18080
+#http://noahdavids.org/stratasphere/selecting_ports.html
+portainer_tcp_port: 5000
 portainer_image: 'portainer/portainer:latest'
 portainer_subdomains: ['portainer', 'manager']
 portainer_mode: ['replicated', 1] #or ['global']
@@ -135,7 +136,7 @@ portainer_mode: ['replicated', 1] #or ['global']
 ##########################
 # Dockerized: visualizer #
 ##########################
-visualizer_tcp_port: 18081
+visualizer_tcp_port: 5001
 visualizer_image: 'dockersamples/visualizer:latest'
 visualizer_subdomains: ['visualizer', 'monitor']
 visualizer_mode: ['global']
@@ -143,7 +144,7 @@ visualizer_mode: ['global']
 ##########################
 # Dockerized: echo       #
 ##########################
-echo_tcp_port: 18082
+echo_tcp_port: 5002
 echo_image: 'katacoda/docker-http-server:v2'
 echo_subdomains: ['echo']
 echo_mode: ['replicated', 1] #or ['global']
