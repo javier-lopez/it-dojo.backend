@@ -1,0 +1,4 @@
+flask
+flask-mail
+flask-bcrypt
+flask-mongoengine

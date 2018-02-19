@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  mongodb:
+      image: aashreys/mongo-auth:latest
+      volumes:
+        - ./mongodb-data:/data/db
+      environment:
+        - AUTH=yes
+        - MONGODB_ADMIN_USER=admin
+        - MONGODB_ADMIN_PASS=admin
+        - MONGODB_APPLICATION_DATABASE=it-dojo-backend-api
+        - MONGODB_APPLICATION_USER=it-dojo-backend-api
+        - MONGODB_APPLICATION_PASS=it-dojo-backend-api
+      ports:
+        - "27017:27017"
+
+  it-dojo-backend-api:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/usr/src/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - ./tty-controller:/usr/bin/tty-controller
+      - ./templates:/templates/
+    working_dir: "/usr/src/app"
+    environment:
+      - LANG=C.UTF-8
+      - FLASK_APP=run.py
+      - SMTP_USER=postmaster@it-dojo.com
+      - SMTP_PASSWD=you-will-never-guess

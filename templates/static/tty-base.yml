@@ -1,0 +1,29 @@
+version: "3.4"
+
+#docker stack deploy -c tty-base-TTY_ID.yml tty-TTY_ID
+services:
+  TTY_ID:
+    image: "jlpz/gotty:2.0.0-alpha.3-tmux"
+    #command: ["-p", "8080", "--permit-write","--reconnect", "tmux", "new", "-A", "-s", "gotty", "/bin/sh"]
+    #ports:
+      #- "50001:8080"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      placement:
+        constraints: [node.role == worker]
+      update_config:
+        delay: 2s
+      labels:
+        - "traefik.backend=TTY_ID"
+        - "traefik.frontend.rule=Host: tty-TTY_ID.it-dojo.io"
+        - "traefik.docker.network=traefik_external"
+        - "traefik.port=8080"
+    networks:
+      - traefik_external
+
+networks:
+  traefik_external:
+    external: true

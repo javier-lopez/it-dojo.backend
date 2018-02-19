@@ -1,0 +1,127 @@
+#!/bin/sh
+VERSION="2018.02.18-15:37"
+
+_usage() {
+    printf "%s\\n" "Usage: ${progname} [OPTION]... COMMAND OPTION..."
+    printf "%s\\n" "tty controller."
+    printf "\\n"
+    printf "%s\\n" "COMMANDS:"
+    printf "\\n"
+    printf "%s\\n" "  create template"
+    printf "%s\\n" "  read   image_id"
+    printf "%s\\n" "  update image_id template"
+    printf "%s\\n" "  delete image_id"
+    printf "\\n"
+    printf "%s\\n" "OPTIONS:"
+    printf "\\n"
+    printf "%s\\n" "  -T, --template-dir             specify template template_dir, default: ${template_dir}"
+    printf "%s\\n" "  -L, --list-static-templates    list static templates"
+    printf "%s\\n" "  -l, --list-dynamic-templates   list dynamic templates"
+    printf "%s\\n" "  -V, --version                  display version"
+    printf "%b\\n" "  -v, --verbose                  turn on verbose mode"
+    printf "%b\\n" "  -h, --help                     show this message and exit"
+}
+
+_die() {
+    [ -z "${1}" ] || printf "%s\\n" "${*}" >&2
+    _usage; >&2; exit 1
+}
+
+_show_version() {
+    printf "%s\\n" "${progname} ${VERSION}"
+}
+
+_list_templates() {
+    for template in "${template_dir}/${1}"/*.yml; do
+        [ ! -f "${template}" ] && continue
+        printf "%s\\n" "$(basename ${template})"
+    done
+}
+
+_tty_controller() {
+    [ -z "${1}" ] && _die "Missing COMMAND"
+    command="${1}"; shift
+    case "${command}" in
+        c*)
+            [ -z "${1}" ] && _die "Missing template, ACTION: create"
+            static_template="${template_dir}/static/${1}"
+            basename_static_template="$(basename "${static_template}" .yml)"
+
+            if [ -f "${static_template}" ]; then
+                tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
+                while grep -q " ${tty_id}:" "${template_dir}/dynamic"/* 2>/dev/null; do
+                    tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
+                done
+                dynamic_template="${template_dir}/dynamic/${basename_static_template}-${tty_id}.yml"
+                cp "${static_template}" "${dynamic_template}"
+                sed -i "s:TTY_ID:${tty_id}:g" "${dynamic_template}"
+                printf "%s\\n" "docker stack deploy -c ${template_dir}dynamic/tty-base-${tty_id}.yml tty-${tty_id}"
+                docker stack deploy -c ${template_dir}dynamic/tty-base-${tty_id}.yml tty-${tty_id}
+                printf "%s\\n" "tty-${tty_id}.it-dojo.io"
+            else
+                _die "Template '${static_template}' doesn't exists!"
+            fi
+            ;;
+        r*)
+            [ -z "${1}" ] && _die "Missing image_id, ACTION: read"
+            printf "%s\\n" "TODO"
+            ;;
+        u*)
+            [ -z "${1}" ] && _die "Missing image_id, ACTION: update"
+            [ -z "${2}" ] && _die "Missing template, ACTION: update"
+            printf "%s\\n" "TODO"
+            ;;
+        d*)
+            [ -z "${1}" ] && _die "Missing image_id, ACTION: delete"
+            tty_uri="${1}" #sample: tty-ZspY48vc8V.it-dojo.io
+            tty_id="${1%%.*}"
+            tty_id="${tty_id##tty-}"
+            printf "%s\\n" "docker stack rm tty-${tty_id}"
+            docker stack rm tty-${tty_id}
+            dynamic_template="$(grep -l -r "${tty_uri}" "${template_dir}dynamic/" 2>/dev/null)"
+            if [ -n "${dynamic_template}" ]; then
+                printf "%s\\n" "rm -rf ${dynamic_template}"
+                rm -rf "${dynamic_template}"
+            fi
+            ;;
+    esac
+}
+
+progname="$(basename "${0}")"
+template_dir="/templates/"
+
+if [ ! -t 0 ]; then
+    #there is input comming from pipe or file, add it to the end of $@
+    set -- "${@}" $(cat)
+fi
+
+[ "${#}" -eq "0" ] && _die
+
+for arg in "${@}"; do #parse options
+    case "${arg}" in
+        -h|--help)    _usage;  exit ;;
+        -L|--list-static-templates)  _list_templates static;  exit "${?}" ;;
+        -l|--list-dynamic-templates) _list_templates dynamic; exit "${?}" ;;
+        -V|--version) _show_version; exit "${?}" ;;
+        -v|--verbose) verbose="1"; shift ;;
+        '-T'|'--template-dir'|-T*|--template-dir*)
+            case "${arg}" in
+                '-T'|'--template-dir')
+                    if [ "${#}" -gt "1" ]; then
+                        case "${2}" in
+                            -*) _die "Option '${arg}' requires a parameter";;
+                        esac
+                        shift; template_dir="${1}"; [ "${1}" ] && shift
+                    else
+                        _die "Option '${arg}' requires a parameter"
+                    fi
+                    ;;
+                -T*) template_dir="${1#-T}"; shift ;;
+                --template-dir*) template_dir="${1#--template-dir}"; shift ;;
+            esac
+            ;;
+        -*) _die "${progname}: unrecognized option '${arg}'" >&2 ;;
+    esac
+done
+
+_tty_controller "${@}"
