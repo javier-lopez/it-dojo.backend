@@ -46,7 +46,7 @@ keepalived_master_priority: 150
 keepalived_backup_priority: 100
 
 ##############
-# HAProxy    #
+#  HAProxy   #
 ##############
 haproxy_frontend_tcp_port: 80
 haproxy_frontend_tls_tcp_port: 443 #only applied when haproxy_frontend_tls == true
@@ -58,7 +58,7 @@ haproxy_frontend_tls: true
 haproxy_maxconn: 2048
 
 ##########
-# NFS    #
+#  NFS   #
 ##########
 nfs_exports:
   - src: "{{persistent_storage_path}}"
@@ -138,6 +138,10 @@ registry_image: 'registry:2'
 registry_subdomains: ['registry']
 registry_mode: ['replicated', 1] #or ['global']
 
+##########################
+# Dockerized: portainer  #
+##########################
+portainer_tcp_port: 5001
 portainer_image: 'portainer/portainer:latest'
 portainer_subdomains: ['portainer', 'manager']
 portainer_mode: ['replicated', 1] #or ['global']
@@ -145,7 +149,7 @@ portainer_mode: ['replicated', 1] #or ['global']
 ##########################
 # Dockerized: visualizer #
 ##########################
-visualizer_tcp_port: 5001
+visualizer_tcp_port: 5002
 visualizer_image: 'dockersamples/visualizer:latest'
 visualizer_subdomains: ['visualizer', 'monitor']
 visualizer_mode: ['global']
