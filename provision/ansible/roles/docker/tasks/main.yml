@@ -1,8 +1,13 @@
 - name: create docker logs directory
   file: path='{{docker_containers_log_path}}' state=directory owner=syslog
 
+- name: verify if docker is installed
+  stat: path=/usr/bin/docker
+  register: docker_installed
+
 - name: install docker
   include_tasks: install-docker.{{distro}}.yml
+  when: not docker_installed.stat.exists
 
 - name: docker -v
   raw:  docker -v
