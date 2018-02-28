@@ -1,0 +1,33 @@
+- name: create api-build folder
+  file: path="{{docker_containers_volume_path}}/api-build" mode=755 state=directory
+
+- name: upload files
+  copy: src={{item}} dest="{{docker_containers_volume_path}}/api-build/"
+  with_fileglob:
+    - files/*
+
+- name: upload files (directories)
+  synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api-build/api/"
+  with_items:
+    - api/
+
+- name: build api container, rm -f
+  shell: |
+    docker-compose -f "{{docker_containers_volume_path}}/api-build/docker-compose.yml" rm -f
+  register: build_api
+
+- debug: var=build_api
+
+- name: build api container, build
+  shell: |
+    docker-compose -f "{{docker_containers_volume_path}}/api-build/docker-compose.yml" build
+  register: build_api
+
+- debug: var=build_api
+
+- name: build api container, push
+  shell: |
+    docker-compose -f "{{docker_containers_volume_path}}/api-build/docker-compose.yml" push
+  register: build_api
+
+- debug: var=build_api

@@ -183,6 +183,7 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 'monitor.it-dojo.io',
                 'manager.it-dojo.io',
                 'echo.it-dojo.io',
+                'api.it-dojo.io',
             ]
         ],
     ]

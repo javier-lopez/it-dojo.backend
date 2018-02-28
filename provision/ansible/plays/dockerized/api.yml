@@ -1,0 +1,6 @@
+- hosts: docker-swarm.manager
+  roles:
+    - { role: api-build,
+        tags: [ 'services', 'build', 'api' ] }
+    - { role: api,
+        tags: [ 'services', 'api' ] }

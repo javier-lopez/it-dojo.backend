@@ -16,7 +16,10 @@ services:
         - "27017:27017"
 
   it-dojo-backend-api:
-    build: .
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: registry.it-dojo.io/it-dojo-backend-api:latest
     ports:
       - "5000:5000"
     depends_on:
@@ -25,7 +28,7 @@ services:
       - .:/usr/src/app
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
-      - ./tty-controller:/usr/bin/tty-controller
+      - ./bin/tty-controller:/usr/bin/tty-controller
       - ./templates:/templates/
     working_dir: "/usr/src/app"
     environment:

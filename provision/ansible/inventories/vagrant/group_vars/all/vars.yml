@@ -153,7 +153,19 @@ visualizer_mode: ['global']
 ##########################
 # Dockerized: echo       #
 ##########################
-echo_tcp_port: 5002
+echo_tcp_port: 5003
 echo_image: 'katacoda/docker-http-server:v2'
 echo_subdomains: ['echo']
 echo_mode: ['replicated', 1] #or ['global']
+
+######################################################################
+######################################################################
+######################################################################
+
+##########################
+# Dockerized: api        #
+##########################
+api_tcp_port: 9090
+api_image: 'registry.{{domain}}/it-dojo-backend-api:latest'
+api_subdomains: ['api']
+api_mode: ['global']

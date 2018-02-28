@@ -1,0 +1,33 @@
+- name: create compose config folder
+  file: path={{docker_compose_path}} mode=755 state=directory
+
+- name: upload templates|bin directories
+  copy: src={{item}} dest="{{docker_containers_volume_path}}/api/" local_follow=yes
+  with_items:
+    - bin
+    - templates
+
+- name: create service docker volume directories
+  file: path={{docker_containers_volume_path}}/{{item}} state=directory
+  with_items:
+    - api/mongodb/data
+
+- name: capture docker volume directories
+  set_fact: docker_containers_volume_paths="{{docker_containers_volume_paths|default([])}} + ['{{docker_containers_volume_path}}/{{item}}']"
+  with_items:
+    - api/mongodb/data
+
+- debug: var=docker_containers_volume_paths
+
+- name: create api compose template
+  template: src=api.yml dest={{docker_compose_path}}/api.yml
+  register: compose_template
+
+- name: deploy api stack
+  command: docker stack deploy -c {{docker_compose_path}}/api.yml api
+  register: api_exec
+  when:
+    - inventory_hostname == docker_swarm_primary_manager
+    - compose_template.changed
+
+- debug: var=api_exec
