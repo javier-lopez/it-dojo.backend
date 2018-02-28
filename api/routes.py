@@ -144,7 +144,7 @@ def format_reply(tty):
             #replace id field for a control uri
             new_tty['endpoint'] = url_for('get_tty', tty_id=tty['id'], _external=True)
         elif field == 'subdomain':
-            new_tty['uri'] = tty['subdomain'] + domain
+            new_tty['uri'] = tty['subdomain'] + '.' + domain
         elif field == 'created':
             new_tty['created'] = tty['created'].__str__()
         elif field == 'destroyed':
