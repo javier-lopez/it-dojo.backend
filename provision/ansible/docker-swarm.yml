@@ -1,22 +1,64 @@
 - import_playbook: plays/common.yml
-  when: not skip_common
+  when:
+    - play_common is defined
+    - play_common == true
+
 - import_playbook: plays/load-balancer.yml
-  when: not skip_load_balancer
+  when:
+    - play_load_balancer is defined
+    - play_load_balancer == true
+
 - import_playbook: plays/nfs.yml
-  when: not skip_nfs
+  when:
+    - play_nfs is defined
+    - play_nfs == true
+
 - import_playbook: plays/mount.yml
-  when: not skip_mount
+  when:
+    - play_mount is defined
+    - play_mount == true
+
 - import_playbook: plays/docker-swarm.yml
-  when: not skip_docker_swarm
+  when:
+    - play_docker_swarm is defined
+    - play_docker_swarm == true
+
 - import_playbook: plays/dockerized/traefik.yml
-  when: not skip_dockerized_traefik
+  when:
+    - play_dockerized_traefik is defined
+    - play_dockerized_traefik == true
+
+- import_playbook: plays/dockerized/registry.yml
+  when:
+    - play_dockerized_registry is defined
+    - play_dockerized_registry == true
+
 - import_playbook: plays/dockerized/visualizer.yml
-  when: not skip_dockerized_visualizer
+  when:
+    - play_dockerized_visualizer is defined
+    - play_dockerized_visualizer == true
+
 - import_playbook: plays/dockerized/portainer.yml
-  when: not skip_dockerized_portainer
+  when:
+    - play_dockerized_portainer is defined
+    - play_dockerized_portainer == true
+
 - import_playbook: plays/dockerized/echo.yml
-  when: not skip_dockerized_echo
+  when:
+    - play_dockerized_echo is defined
+    - play_dockerized_echo == true
+
+- import_playbook: plays/dockerized/api.yml
+  when:
+    - play_dockerized_api is defined
+    - play_dockerized_api == true
+
 - import_playbook: plays/dockerized/volumes.yml
-  when: not skip_dockerized_volumes
+  when:
+    - play_dockerized_volumes is defined
+    - play_dockerized_volumes == true
+
 - import_playbook: plays/post-deployment.yml
-  when: not skip_post_deployment
+  when:
+    - play_post_deployment is defined
+    - play_post_deployment == true

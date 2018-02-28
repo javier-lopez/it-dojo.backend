@@ -1,14 +1,19 @@
-skip_common:                false
-skip_load_balancer:         false
-skip_nfs:                   false
-skip_mount:                 false
-skip_docker_swarm:          false
-skip_dockerized_traefik:    false
-skip_dockerized_echo:       false
-skip_dockerized_visualizer: false
-skip_dockerized_portainer:  false
-skip_dockerized_volumes:    false
-skip_post_deployment:       false
+###########
+#   Meta  #
+###########
+play_common:                true
+play_load_balancer:         true
+play_nfs:                   true
+play_mount:                 true
+play_docker_swarm:          true
+play_dockerized_traefik:    true
+play_dockerized_registry:   true
+play_dockerized_visualizer: true
+play_dockerized_portainer:  true
+play_dockerized_echo:       true
+play_dockerized_api:        true
+play_dockerized_volumes:    true
+play_post_deployment:       true
 
 ###########
 # General #
