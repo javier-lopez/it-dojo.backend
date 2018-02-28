@@ -56,6 +56,8 @@ backend docker_swarm
 {# redirect 80 => 443 #}
 {% if haproxy_frontend_tls is defined and haproxy_frontend_tls == true %}
     redirect scheme https if !{ ssl_fc }
+    #required for docker registry: https://github.com/docker/distribution/issues/2225#issuecomment-330947505
+    http-request set-header X-Forwarded-Proto https if { ssl_fc }
 {% endif %}
 
 {# because traefik, our reverse proxy is only running in docker managers (required for routing) #}

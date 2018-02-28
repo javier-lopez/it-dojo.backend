@@ -179,6 +179,7 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         [
             '10.10.10.10', [
                 'traefik.it-dojo.io',
+                'registry.it-dojo.io',
                 'monitor.it-dojo.io',
                 'manager.it-dojo.io',
                 'echo.it-dojo.io',

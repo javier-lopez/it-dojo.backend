@@ -130,10 +130,14 @@ traefik_mode: ['global'] #or ['replicated', 1]
 #https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/#replicated-and-global-services
 
 ##########################
-# Dockerized: portainer  #
+# Dockerized: registry   #
 ##########################
 #http://noahdavids.org/stratasphere/selecting_ports.html
-portainer_tcp_port: 5000
+registry_tcp_port: 5000
+registry_image: 'registry:2'
+registry_subdomains: ['registry']
+registry_mode: ['replicated', 1] #or ['global']
+
 portainer_image: 'portainer/portainer:latest'
 portainer_subdomains: ['portainer', 'manager']
 portainer_mode: ['replicated', 1] #or ['global']
