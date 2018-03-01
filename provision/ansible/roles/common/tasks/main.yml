@@ -79,9 +79,10 @@
 - name: enable iptables
   include_tasks: enable-iptables.{{distro}}.yml
 
-- name: flush iptables
-  raw: |
-    iptables --flush
-    service iptables save && service restart iptables || : #could not exists the service in none redhat based distros
-  args:
-    warn: false
+#  destroy docker iptables rules
+#- name: flush iptables
+  #raw: |
+    #iptables --flush
+    #service iptables save && service restart iptables || : #could not exists the service in none redhat based distros
+  #args:
+    #warn: false
