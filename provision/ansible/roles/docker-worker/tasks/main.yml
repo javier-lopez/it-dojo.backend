@@ -4,6 +4,8 @@
     warn: false
   register: swarm_status
 
+- debug: var=swarm_status
+
 - name: retrieve docker-swarm manager token from primary server
   set_fact: docker_swarm_manager_token="{{hostvars[docker_swarm_primary_manager]['docker_swarm_manager_token']}}"
   changed_when: false # this will never report 'changed' status

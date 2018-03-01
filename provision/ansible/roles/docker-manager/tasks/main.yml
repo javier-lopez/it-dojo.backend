@@ -2,6 +2,8 @@
   shell: docker info 2>/dev/null | awk '/^Swarm:/{print $2}'
   register: swarm_status
 
+- debug: var=swarm_status
+
 - name: initialize docker swarm mode in primary manager
   command: >
       docker swarm init
