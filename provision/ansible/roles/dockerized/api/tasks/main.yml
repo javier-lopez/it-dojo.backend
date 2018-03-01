@@ -2,7 +2,7 @@
   file: path={{docker_compose_path}} mode=755 state=directory
 
 - name: upload templates|bin directories
-  copy: src={{item}} dest="{{docker_containers_volume_path}}/api/" local_follow=yes
+  synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api" delete=yes recursive=yes copy_links=yes
   with_items:
     - bin
     - templates
@@ -28,6 +28,6 @@
   register: api_exec
   when:
     - inventory_hostname == docker_swarm_primary_manager
-    - compose_template.changed
+    #- compose_template.changed #this line is commented in order to force updating the api service, useful in development phase
 
 - debug: var=api_exec
