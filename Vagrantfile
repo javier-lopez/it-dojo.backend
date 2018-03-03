@@ -9,21 +9,24 @@ hosts = [
     #10.10.10.1 is configured as bridged between the host and 10.10.1.x guests
     {
         :name   => "load-balancer.001.it-dojo.io",
-        :box    => "minos/core-16.04",
+        :box    => "it-dojo/load-balancer",
+        #:box    => "minos/core-16.04",
         :groups => ["load-balancer"],
         :ram    => "256", :cpus  => "1",
         :ip     => "10.10.10.11",
     },
     {
         :name   => "docker-manager.001.it-dojo.io",
-        :box    => "minos/core-16.04",
+        :box    => "it-dojo/docker",
+        #:box    => "minos/core-16.04",
         :groups => ["docker-swarm", "docker-swarm.manager", "nfs"],
         :ram    => "512", :cpus  => "1",
         :ip     => "10.10.10.21",
     },
     {
         :name   => "docker-worker.001.it-dojo.io",
-        :box    => "minos/core-16.04",
+        :box    => "it-dojo/docker",
+        #:box    => "minos/core-16.04",
         :groups => ["docker-swarm", "docker-swarm.worker"],
         #:ram   => "6144", :cpus  => "1",
         :ram    => "1024", :cpus  => "1",
