@@ -149,7 +149,8 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                             ansible.vault_password_file = ".vault_pass.txt"
                             ansible.raw_arguments  = [
                                 "--extra-vars=@provision/ansible/inventories/vagrant/group_vars/all/vault.yml"
-                            ] + Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
+                            ]
+                            ansible.raw_arguments += Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
                         end
                     else
                         machine.vm.provision "ansible_local" do |ansible|
@@ -165,7 +166,8 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                             ansible.vault_password_file = ".vault_pass.txt"
                             ansible.raw_arguments  = [
                                 "--extra-vars=@provision/ansible/inventories/vagrant/group_vars/all/vault.yml"
-                            ] + Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
+                            ]
+                            ansible.raw_arguments += Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
                         end
                     end
                 end
