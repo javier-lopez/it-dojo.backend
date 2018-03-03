@@ -8,9 +8,9 @@ play_mount:                 true
 play_docker_swarm:          true
 play_dockerized_traefik:    true
 play_dockerized_registry:   true
-play_dockerized_visualizer: true
-play_dockerized_portainer:  true
-play_dockerized_echo:       true
+play_dockerized_visualizer: false
+play_dockerized_portainer:  false
+play_dockerized_echo:       false
 play_dockerized_api:        true
 play_dockerized_volumes:    true
 play_post_deployment:       true
