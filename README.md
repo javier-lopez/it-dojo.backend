@@ -22,11 +22,11 @@ infraestructure + traefik tagging + ingress routing
       HTTP/1.0 200 OK
 
     # GET SPECIFIC TTY
-    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/3
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/id
       HTTP/1.0 200 OK
 
     # GET INVALID TTY
-    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/999999
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/invalid_id
       HTTP/1.0 404 NOT FOUND
 
     # REQUEST NEW TTY
@@ -38,7 +38,7 @@ infraestructure + traefik tagging + ingress routing
       HTTP/1.0 201 CREATED
 
     # REMOVE TTY
-    $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/1
+    $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/id
       HTTP/1.0 200 OK
 
 
