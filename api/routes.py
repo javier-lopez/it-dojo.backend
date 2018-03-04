@@ -9,88 +9,56 @@ from datetime import datetime
 domain = app.config['APP_DOMAIN']
 
 # temporal imports ==================================================================
-from api import db
 from random import randint
 #====================================================================================
 
-ttys = [
-    {
-        'id': 1,
-        'subdomain': u'tty-11111',
-        'template': u'tty-tmux',
-        'username': u'test@it-dojo.io',
-        'created': db.DateTimeField(default=datetime.now),
-        'destroyed': db.DateTimeField(default=datetime.now),
-        'ttl': 604800,
-        'active': True,
-    },
-    {
-        'id': 2,
-        'subdomain': u'tty-22222',
-        'template': u'tty-tmux',
-        'username': u'foo@it-dojo.io',
-        'created': db.DateTimeField(default=datetime.now),
-        'destroyed': db.DateTimeField(default=datetime.now),
-        'ttl': 604800,
-        'active': True,
-    },
-    {
-        'id': 3,
-        'subdomain': u'tty-33333',
-        'template': u'tty-tmux',
-        'username': u'bar@it-dojo.io',
-        'created': db.DateTimeField(default=datetime.now),
-        'destroyed': db.DateTimeField(default=datetime.now),
-        'ttl': 604800,
-        'active': True,
-    },
-]
-# ttys = []
-
-#____________________________________________________[ INDEX ]
-@app.route('/v0.1/tty/', methods=['GET'])
-@app.route('/v0.1/tty', methods=['GET'])
-@requires_auth
-def get_ttys():
-    # ttys = TTY.objects()
-    return jsonify({'ttys': [format_reply(tty) for tty in ttys]})
-
-@app.route('/v0.1/tty/<int:tty_id>/', methods=['GET'])
-@app.route('/v0.1/tty/<int:tty_id>', methods=['GET'])
-@requires_auth
-def get_tty(tty_id):
-    tty = [tty for tty in ttys if tty['id'] == tty_id]
-    if len(tty) == 0:
-        abort(404)
-    return jsonify({'tty': format_reply(tty[0])})
-
+#____________________________________________________[ CREATE ]
 @app.route('/v0.1/tty/', methods=['POST'])
-@app.route('/v0.1/tty', methods=['POST'])
+@app.route('/v0.1/tty',  methods=['POST'])
 @requires_auth
 def post_tty():
     if not request.json or not 'template' in request.json or not 'username' in request.json:
         abort(400)
 
-    tty = {
-        'id': ttys[-1]['id'] + 1,
-        'template': request.json['template'],
-        'username': request.json['username'],
-        'subdomain': u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)),
-        'created': db.DateTimeField(default=datetime.now),
-        'destroyed': db.DateTimeField(default=datetime.now),
-        'ttl': 604800,
-        'active': True,
-    }
+    subdomain=u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9))
+    new_tty = TTY(
+                template  = request.json['template'],
+                username  = request.json['username'],
+                subdomain = subdomain,
+              ).save()
 
-    ttys.append(tty)
-    return jsonify({'tty': format_reply(tty)}), 201
+    return jsonify({'tty': format_reply(new_tty)}), 201
 
-@app.route('/v0.1/tty/<int:tty_id>/', methods=['PUT'])
-@app.route('/v0.1/tty/<int:tty_id>',  methods=['PUT'])
+#____________________________________________________[ READ ]
+@app.route('/v0.1/tty/', methods=['GET'])
+@app.route('/v0.1/tty',  methods=['GET'])
+@requires_auth
+def get_ttys():
+    ttys = TTY.objects()
+    return jsonify({'ttys': [format_reply(tty) for tty in ttys]})
+
+@app.route('/v0.1/tty/<tty_id>/', methods=['GET'])
+@app.route('/v0.1/tty/<tty_id>',  methods=['GET'])
+@requires_auth
+def get_tty(tty_id):
+    try:
+        tty = TTY.objects(id=tty_id).first()
+    except:
+        abort(404)
+    if tty is None:
+        abort(404)
+    return jsonify({'tty': format_reply(tty)})
+
+#____________________________________________________[ UPDATE ]
+@app.route('/v0.1/tty/<tty_id>/', methods=['PUT'])
+@app.route('/v0.1/tty/<tty_id>',  methods=['PUT'])
 @requires_auth
 def update_task(tty_id):
-    tty = [tty for tty in ttys if tty['id'] == tty_id]
-    if len(tty) == 0:
+    try:
+        tty = TTY.objects(id=tty_id).first()
+    except:
+        abort(404)
+    if tty is None:
         abort(404)
     if not request.json:
         abort(400)
@@ -100,19 +68,26 @@ def update_task(tty_id):
         abort(400)
     if 'active' in request.json and type(request.json['active']) is not bool:
         abort(400)
-    tty[0]['template'] = request.json.get('template', tty[0]['template'])
-    tty[0]['username'] = request.json.get('username', tty[0]['username'])
-    tty[0]['active'] = request.json.get('active', tty[0]['active'])
-    return jsonify({'tty': format_reply(tty[0])})
 
-@app.route('/v0.1/tty/<int:tty_id>/', methods=['DELETE'])
-@app.route('/v0.1/tty/<int:tty_id>', methods=['DELETE'])
+    tty.template = request.json.get('template', tty.template)
+    tty.username = request.json.get('username', tty.username)
+    tty.username = request.json.get('active',   tty.active)
+    tty.save()
+
+    return jsonify({'tty': format_reply(tty)})
+
+#____________________________________________________[ DELETE ]
+@app.route('/v0.1/tty/<tty_id>/', methods=['DELETE'])
+@app.route('/v0.1/tty/<tty_id>',  methods=['DELETE'])
 @requires_auth
 def delete_task(tty_id):
-    tty = [tty for tty in ttys if tty['id'] == tty_id]
-    if len(tty) == 0:
+    try:
+        tty = TTY.objects(id=tty_id).first()
+    except:
         abort(404)
-    ttys.remove(tty[0])
+    if tty is None:
+        abort(404)
+    tty.delete()
     return jsonify({'result': True})
 
 @app.errorhandler(404)
@@ -138,17 +113,17 @@ def not_found(error=None):
     return resp
 
 def format_reply(tty):
-    new_tty = {}
+    formatted_tty = {}
     for field in tty:
         if field == 'id':
             #replace id field for a control uri
-            new_tty['endpoint'] = url_for('get_tty', tty_id=tty['id'], _external=True)
+            formatted_tty['endpoint'] = url_for('get_tty', tty_id=tty['id'], _external=True)
         elif field == 'subdomain':
-            new_tty['uri'] = tty['subdomain'] + '.' + domain
+            formatted_tty['uri'] = tty['subdomain'] + '.' + domain
         elif field == 'created':
-            new_tty['created'] = tty['created'].__str__()
+            formatted_tty['created'] = tty['created'].__str__()
         elif field == 'destroyed':
-            new_tty['destroyed'] = tty['created'].__str__()
+            formatted_tty['destroyed'] = tty['created'].__str__()
         else:
-            new_tty[field] = tty[field]
-    return new_tty
+            formatted_tty[field] = tty[field]
+    return formatted_tty
