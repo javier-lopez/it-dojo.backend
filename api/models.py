@@ -7,5 +7,5 @@ class TTY(db.Document):
     subdomain  = db.StringField(required=True, unique=True)
     created    = db.DateTimeField(default=datetime.now)
     destroyed  = db.DateTimeField()
-    ttl        = db.IntField(604800) #7 days
+    ttl        = db.IntField(default=604800) #7 days
     active     = db.BooleanField(default=True)
