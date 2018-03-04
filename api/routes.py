@@ -112,6 +112,17 @@ def not_found(error=None):
 
     return resp
 
+@app.errorhandler(405)
+def not_found(error=None):
+    message = {
+        'status': 405,
+        'message': 'Method not allowed for: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 405
+
+    return resp
+
 def format_reply(tty):
     formatted_tty = {}
     for field in tty:
