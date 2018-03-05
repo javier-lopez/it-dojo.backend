@@ -4,9 +4,8 @@ from api import app, bcrypt
 from api.models import TTY
 from api.decorators import requires_auth
 
+from sh import tty_controller
 from datetime import datetime
-
-domain = app.config['APP_DOMAIN']
 
 # temporal imports ==================================================================
 from random import randint
@@ -20,11 +19,20 @@ def post_tty():
     if not request.json or not 'template' in request.json or not 'username' in request.json:
         abort(400)
 
-    subdomain=u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9))
+    if not 'dry_run' in request.json:
+        output  = tty_controller("create",  request.json['template'] + ".yml").splitlines()
+        uri     = output[-1]
+        dry_run = False
+    else:
+        uri     = u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9))
+        uri    += ".it-dojo.io"
+        dry_run = True
+
     new_tty = TTY(
-                template  = request.json['template'],
-                username  = request.json['username'],
-                subdomain = subdomain,
+                template = request.json['template'],
+                username = request.json['username'],
+                uri      = uri,
+                dry_run  = dry_run,
               ).save()
 
     return jsonify({'tty': format_reply(new_tty)}), 201
@@ -87,6 +95,12 @@ def delete_task(tty_id):
         abort(404)
     if tty is None:
         abort(404)
+
+    if not tty.dry_run:
+        image_id = tty.uri # tty-uu3js81.it-dojo.io
+        image_id = image_id[4:image_id.index(".")] # uu3js81
+        output   = tty_controller("delete", tty.template, image_id).splitlines()
+
     tty.delete()
     return jsonify({'result': True})
 
@@ -129,8 +143,6 @@ def format_reply(tty):
         if field == 'id':
             #replace id field for a control uri
             formatted_tty['endpoint'] = url_for('get_tty', tty_id=tty['id'], _external=True)
-        elif field == 'subdomain':
-            formatted_tty['uri'] = tty['subdomain'] + '.' + domain
         elif field == 'created':
             formatted_tty['created'] = tty['created'].__str__()
         elif field == 'destroyed':

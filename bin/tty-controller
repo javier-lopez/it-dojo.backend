@@ -1,5 +1,5 @@
 #!/bin/sh
-VERSION="2018.02.18-15:37"
+VERSION="2018.03.04-22:46"
 
 _usage() {
     printf "%s\\n" "Usage: ${progname} [OPTION]... COMMAND OPTION..."
@@ -8,9 +8,9 @@ _usage() {
     printf "%s\\n" "COMMANDS:"
     printf "\\n"
     printf "%s\\n" "  create template"
-    printf "%s\\n" "  read   image_id"
-    printf "%s\\n" "  update image_id template"
-    printf "%s\\n" "  delete image_id"
+    printf "%s\\n" "  read   template image_id"
+    printf "%s\\n" "  update template image_id"
+    printf "%s\\n" "  delete template image_id"
     printf "\\n"
     printf "%s\\n" "OPTIONS:"
     printf "\\n"
@@ -48,52 +48,71 @@ _tty_controller() {
             basename_static_template="$(basename "${static_template}" .yml)"
 
             if [ -f "${static_template}" ]; then
-                tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
-                while grep -q " ${tty_id}:" "${template_dir}/dynamic"/* 2>/dev/null; do
-                    tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
-                done
+                tty_id="$(< /dev/urandom tr -dc a-z0-9 | head -c10 )"
                 dynamic_template="${template_dir}/dynamic/${basename_static_template}-${tty_id}.yml"
+                while test -f "${dynamic_template}"; do
+                    tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
+                    dynamic_template="${template_dir}/dynamic/${basename_static_template}-${tty_id}.yml"
+                done
                 cp "${static_template}" "${dynamic_template}"
                 sed -i "s:TTY_ID:${tty_id}:g" "${dynamic_template}"
-                printf "%s\\n" "docker stack deploy -c ${template_dir}dynamic/tty-base-${tty_id}.yml tty-${tty_id}"
-                docker stack deploy -c ${template_dir}dynamic/tty-base-${tty_id}.yml tty-${tty_id}
-                printf "%s\\n" "tty-${tty_id}.it-dojo.io"
+                printf "%s\\n" "docker stack deploy -c ${dynamic_template} ${basename_static_template}-${tty_id}"
+                docker stack deploy -c "${dynamic_template}" "${basename_static_template}-${tty_id}"
+                last_status="${?}"
+                if [ X"${last_status}" = X"0" ]; then
+                    printf "%s\\n" "tty-${tty_id}.it-dojo.io"
+                else
+                    rm -rf "${dynamic_template}"
+                fi
+                return "${last_status}"
             else
                 _die "Template '${static_template}' doesn't exists!"
             fi
             ;;
         r*)
-            [ -z "${1}" ] && _die "Missing image_id, ACTION: read"
+            [ -z "${1}" ] && _die "Missing template, ACTION: read"
+            [ -z "${2}" ] && _die "Missing image_id, ACTION: read"
             printf "%s\\n" "TODO"
             ;;
         u*)
-            [ -z "${1}" ] && _die "Missing image_id, ACTION: update"
-            [ -z "${2}" ] && _die "Missing template, ACTION: update"
+            [ -z "${1}" ] && _die "Missing template, ACTION: update"
+            [ -z "${2}" ] && _die "Missing image_id, ACTION: update"
             printf "%s\\n" "TODO"
             ;;
         d*)
-            [ -z "${1}" ] && _die "Missing image_id, ACTION: delete"
-            tty_uri="${1}" #sample: tty-ZspY48vc8V.it-dojo.io
-            tty_id="${1%%.*}"
-            tty_id="${tty_id##tty-}"
-            printf "%s\\n" "docker stack rm tty-${tty_id}"
-            docker stack rm tty-${tty_id}
-            dynamic_template="$(grep -l -r "${tty_uri}" "${template_dir}dynamic/" 2>/dev/null)"
-            if [ -n "${dynamic_template}" ]; then
-                printf "%s\\n" "rm -rf ${dynamic_template}"
+            [ -z "${1}" ] && _die "Missing template, ACTION: delete"
+            [ -z "${2}" ] && _die "Missing image_id, ACTION: delete"
+            tty_template="${1}" #sample: tty-base
+            tty_id="${2}"       #sample: 89120x9182
+            dynamic_template="${template_dir}/dynamic/${tty_template}-${tty_id}.yml"
+
+            if [ ! -f "${dynamic_template}" ]; then
+                printf "%s\\n" "'${tty_template}-${tty_id}.yml' image doesn't exists!" >&2
+                return 2
+            fi
+
+            printf "%s\\n" "docker stack rm ${tty_template}-${tty_id}"
+            docker stack rm "${tty_template}-${tty_id}"
+
+            last_status="${?}"
+            if [ X"${last_status}" = X"0" ]; then
+                printf "%s\\n" "tty-${tty_id}.it-dojo.io deleted!"
                 rm -rf "${dynamic_template}"
             fi
+            return "${last_status}"
             ;;
     esac
 }
 
-progname="$(basename "${0}")"
-template_dir="/templates/"
+progname="tty-controller"
+template_dir="/templates"
 
-if [ ! -t 0 ]; then
-    #there is input comming from pipe or file, add it to the end of $@
-    set -- "${@}" $(cat)
-fi
+#python sh flask module opens stdin but doesn't seems to close it keeping an
+#eternal loop, disabling it while it's further investigated
+#if [ ! -t 0 ]; then
+    ##there is input comming from pipe or file, add it to the end of $@
+    #set -- "${@}" $(cat)
+#fi
 
 [ "${#}" -eq "0" ] && _die
 

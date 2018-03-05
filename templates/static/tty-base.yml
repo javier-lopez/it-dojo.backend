@@ -1,6 +1,6 @@
 version: "3.4"
 
-#docker stack deploy -c tty-base-TTY_ID.yml tty-TTY_ID
+#docker stack deploy -c tty-base-TTY_ID.yml tty-base-TTY_ID
 services:
   TTY_ID:
     image: "jlpz/gotty:2.0.0-alpha.3-tmux"

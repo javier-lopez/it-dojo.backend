@@ -1,3 +1,4 @@
+sh
 flask
 flask-mail
 flask-bcrypt

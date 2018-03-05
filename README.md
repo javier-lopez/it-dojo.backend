@@ -37,6 +37,14 @@ infraestructure + traefik tagging + ingress routing
         api.it-dojo.io/v0.1/tty
       HTTP/1.0 201 CREATED
 
+    # REQUEST NEW TTY, DRY RUN MODE (when no docker swarm cluster is available)
+    $ curl -L -k -i -u "admin:admin"        \
+        -H "Content-Type: application/json" \
+        -X POST                             \
+        -d '{"username":"foobar@it-dojo.io", "template": "tty-base", "dry_run": true}' \
+        api.it-dojo.io/v0.1/tty
+      HTTP/1.0 201 CREATED
+
     # REMOVE TTY
     $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/id
       HTTP/1.0 200 OK
