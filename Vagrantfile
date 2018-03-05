@@ -49,6 +49,8 @@ default_cpus = all_cpus || '1'
 
 #vagrant-hostmanager-ext automatically edit hosts files to let vms communicate by domain
 raise "vagrant-hostmanager-ext plugin must be installed: $ vagrant plugin install vagrant-hostmanager-ext" unless Vagrant.has_plugin? "vagrant-hostmanager-ext"
+#vagrant-triggers, automatically run script before/after vagrant commands
+raise "vagrant-triggers plugin must be installed: $ vagrant plugin install vagrant-triggers" unless Vagrant.has_plugin? "vagrant-triggers"
 
 #cross-platform way of finding an executable in the $PATH.
 def which(cmd)
@@ -189,7 +191,21 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 'manager.it-dojo.io',
                 'echo.it-dojo.io',
                 'api.it-dojo.io',
+                '*.it-dojo.io', #on demand tty endpoints, require dnsproxy
             ]
         ],
     ]
+
+    #vagrant-triggers
+    [:up, :provision].each do |cmd|
+        config.trigger.after cmd, stdout: true do
+            run "./provision/vagrant/enable-dnsproxy"
+        end
+    end
+
+    [:destroy].each do |cmd|
+        config.trigger.after cmd, stdout: true do
+            run "./provision/vagrant/disable-dnsproxy"
+        end
+    end
 end

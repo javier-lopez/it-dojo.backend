@@ -1,0 +1,12 @@
+#!/bin/sh
+CURRENT_DIR="$(cd "$(dirname "${0}")" && pwd)"
+
+sudo true #cache sudo token
+
+if ! sudo grep -q "#dnsproxy" /etc/resolv.conf; then
+    sudo  sed -i '1 i\nameserver 127.0.0.1 #dnsproxy' /etc/resolv.conf
+fi
+
+if ! ps aux | grep -v grep | grep -q "python dnsproxy"; then
+    sudo nohup python "${CURRENT_DIR}"/dnsproxy -s 8.8.8.8 >/dev/null 2>&1 &
+fi
