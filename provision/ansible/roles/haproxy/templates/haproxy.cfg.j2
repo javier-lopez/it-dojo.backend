@@ -29,7 +29,7 @@ frontend http-in
     reqadd X-Forwarded-Proto:\ http
     default_backend docker_swarm
 
-{% if haproxy_frontend_tls is defined and haproxy_frontend_tls == true %}
+{% if haproxy_https is defined and haproxy_https == true %}
 frontend https-in
     bind *:{{haproxy_frontend_tls_tcp_port}} ssl crt /etc/ssl/private/wildcard.{{domain}}.pem
     reqadd X-Forwarded-Proto:\ https
@@ -54,9 +54,11 @@ backend docker_swarm
     option http-server-close
 
 {# redirect 80 => 443 #}
-{% if haproxy_frontend_tls is defined and haproxy_frontend_tls == true %}
+{% if haproxy_https is defined and haproxy_https == true %}
+{% if haproxy_redirect_https is defined and haproxy_redirect_https == true %}
     #code 307 allows to reuse the same method GET/POST/DELETE/UPDATE in the redirected URL
     redirect scheme https code 307 if !{ ssl_fc }
+{% endif %}
     #required for docker registry: https://github.com/docker/distribution/issues/2225#issuecomment-330947505
     http-request set-header X-Forwarded-Proto https if { ssl_fc }
 {% endif %}

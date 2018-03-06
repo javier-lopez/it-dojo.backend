@@ -5,7 +5,7 @@
   file: path={{item}} state=directory
   with_items:
     - /etc/ssl/private/
-  when: haproxy_frontend_tls is defined and haproxy_frontend_tls == true
+  when: haproxy_https is defined and haproxy_https == true
 
 - name: install TLS certificates
   copy: content="{{item.src}}" dest="/etc/ssl/private/{{item.dst}}"
@@ -13,7 +13,7 @@
     - { src: '{{vault_haproxy_tls_key}}', dst: 'wildcard.{{domain}}.key' }
     - { src: '{{vault_haproxy_tls_crt}}', dst: 'wildcard.{{domain}}.crt' }
     - { src: '{{vault_haproxy_tls_pem}}', dst: 'wildcard.{{domain}}.pem' }
-  when: haproxy_frontend_tls is defined and haproxy_frontend_tls == true
+  when: haproxy_https is defined and haproxy_https == true
 
 - name: create a directory to store haproxy pages
   file: path={{item}} state=directory
