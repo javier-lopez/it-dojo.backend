@@ -3,7 +3,7 @@
 ## Setup local environment
 
     $ echo 'passwwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
-    $ vagrant plugin install vagrant-hostmanager-ext
+    $ vagrant plugin install vagrant-hostmanager-ext vagrant-triggers
     $ vagrant up --provision #takes 15-60 mins depending on your connection
 
     $ ANSIBLE_ARGS='--tags api' vagrant up --provision #for subsecuent runs
