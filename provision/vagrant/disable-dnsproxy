@@ -5,6 +5,9 @@ sudo true #cache sudo token
 
 sudo sed -i '/#dnsproxy/d' /etc/resolv.conf
 
-for pid in $(ps aux | grep -v grep | grep "python dnsproxy" | sort -k3 --revers | awk '{print $2}'); do
+for pid in \
+    $(ps aux | grep -v grep | grep "nohup"   | grep "python" | grep "dnsproxy" | sort -k3 --revers | awk '{print $2}') \
+    $(ps aux | grep -v grep | grep "8.8.8.8" | grep "python" | grep "dnsproxy" | sort -k3 --revers | awk '{print $2}') \
+    ; do
     sudo kill -9 "${pid}"
 done

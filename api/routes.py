@@ -1,6 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request, abort, jsonify
 
 from api import app, bcrypt
+from api.tty import tty_pool
 from api.models import TTY
 from api.decorators import requires_auth
 
@@ -20,9 +21,17 @@ def post_tty():
         abort(400)
 
     if not 'dry_run' in request.json:
-        output  = tty_controller("create",  request.json['template'] + ".yml").splitlines()
-        uri     = output[-1]
-        dry_run = False
+        tty_pool(request.json['template'], 3) #create ttys in advance for upcomming requests
+        tty = TTY.objects(template=request.json['template'], active=False, dry_run=False).first()
+        if tty is None:
+            output  = tty_controller("create",  request.json['template'] + ".yml").splitlines()
+            uri     = output[-1]
+            dry_run = False
+        else:
+            tty.active   = True
+            tty.username = request.json['username']
+            tty.save()
+            return jsonify({'tty': format_reply(tty)}), 201
     else:
         uri     = u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9))
         uri    += ".it-dojo.io"
