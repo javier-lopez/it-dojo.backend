@@ -3,3 +3,4 @@
 .vault_pass.txt
 __pycache__
 mongodb-data
+.env

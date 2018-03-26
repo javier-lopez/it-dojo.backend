@@ -52,7 +52,7 @@ infraestructure + traefik tagging + ingress routing
 
 ## Setup dev environment
 
-    $ ./setup.sh #require docker + docker-compose
+    $ ./setup.sh [docker-compose-file] #require docker + docker-compose
 
 ### Sample interactions
 

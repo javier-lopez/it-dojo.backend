@@ -15,11 +15,18 @@ services:
       - MONGODB_APPLICATION_USER=it-dojo-backend-api
       - MONGODB_APPLICATION_PASS=it-dojo-backend-api
 
+  nginx:
+    image: nginx:1.13.10-alpine
+    ports:
+      - "5000:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - it-dojo-backend-api
+
   it-dojo-backend-api:
     image: registry.it-dojo.io/it-dojo-backend-api:latest
     build: .
-    ports:
-      - "5000:5000"
     depends_on:
       - mongodb
     volumes:
@@ -29,11 +36,11 @@ services:
       - ./bin/tty-controller:/usr/bin/tty-controller
       - ./templates:/templates/
     working_dir: "/usr/src/app"
+    command: gunicorn -w 2 -b :8000 api:app
     restart: on-failure:5
     env_file:
       - .env
     environment:
       - LANG=C.UTF-8
-      - FLASK_APP=run.py
       - APP_ADMIN=admin@it-dojo.io
       - APP_FROM=no-reply@it-dojo.io
