@@ -2,7 +2,8 @@
 
 ## Setup local environment
 
-    $ echo 'passwwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
+    $ echo 'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
+    $ touch .env #never add the .env content to git!
     $ vagrant plugin install vagrant-hostmanager-ext vagrant-triggers
     $ vagrant up --provision #takes 15-60 mins depending on your connection
 

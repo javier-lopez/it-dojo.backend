@@ -5,6 +5,7 @@
   copy: src={{item}} dest="{{docker_containers_volume_path}}/api-build/"
   with_fileglob:
     - files/*
+    - files/.env
 
 - name: upload files (directories)
   synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api-build" delete=yes recursive=yes copy_links=yes
