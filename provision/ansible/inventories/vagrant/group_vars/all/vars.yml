@@ -174,3 +174,4 @@ api_tcp_port: 9090
 api_image: 'registry.{{domain}}/it-dojo-backend-api:latest'
 api_subdomains: ['api']
 api_mode: ['global']
+api_containers_repo: https://github.com/it-dojo/it-dojo.containers

@@ -1,5 +1,9 @@
 # Quick Start
 
+To download this repository use:
+
+    $ git clone --recursive https://github.com/it-dojo/it-dojo.backend
+
 ## Setup local environment
 
     $ echo 'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
