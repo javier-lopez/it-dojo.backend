@@ -17,6 +17,15 @@
 
 - debug: var=raw_output.stdout_lines
 
+- name: add docker group
+  group: name=docker
+
+- name: add docker user
+  user: name=docker group=docker
+
+- name: ensure /etc/docker directory is owned by docker:docker user/group
+  file: path=/etc/docker state=directory mode=0755 owner=docker group=docker
+
 - name: setup docker '{{docker_storage_driver}}' storage driver
   include_tasks: docker-storage-driver-{{docker_storage_driver}}.yml
 
@@ -59,13 +68,13 @@
     - restart systemd
 
 - name: create certificates directory
-  file: path=/etc/docker/certs.d/{{item | basename}} state=directory
+  file: path=/etc/docker/certs.d/{{item | basename}} state=directory owner=docker group=docker
   tags: update_docker_cert
   with_fileglob:
     - certs/*
 
 - name: add certificates
-  copy: src={{item}} dest=/etc/docker/certs.d/{{item | basename}}/ca.crt
+  copy: src={{item}} dest=/etc/docker/certs.d/{{item | basename}}/ca.crt owner=docker group=docker
   with_fileglob:
     - certs/*
 

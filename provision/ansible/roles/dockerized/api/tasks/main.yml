@@ -1,5 +1,5 @@
 - name: create compose config folder
-  file: path={{docker_compose_path}} mode=755 state=directory
+  file: path={{docker_compose_path}} mode=0755 state=directory owner=docker group=docker
 
 - name: upload templates|bin directories
   synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api" delete=yes recursive=yes copy_links=yes

@@ -1,5 +1,5 @@
 - name: create compose config folder
-  file: path={{docker_compose_path}} mode=755 state=directory
+  file: path={{docker_compose_path}} mode=0755 state=directory owner=docker group=docker
 
 - name: create visualizer compose template
   template: src=visualizer.yml dest={{docker_compose_path}}/visualizer.yml
