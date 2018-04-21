@@ -36,7 +36,8 @@ services:
       - ./bin/tty-controller:/usr/bin/tty-controller
       - ./templates:/templates/
     working_dir: "/usr/src/app"
-    command: python run/run.bjoern.py
+    restart: on-failure:5
+    command: python run.cherry.py
     restart: on-failure:5
     env_file:
       - .env

@@ -1,1 +1,1 @@
-dockers/Dockerfile.alpine
+Dockerfile.alpine
