@@ -32,9 +32,9 @@ _show_version() {
 }
 
 _list_templates() {
-    for template in "${template_dir}/${1}"/*.yml; do
+    for template in $(find "${template_dir}/${1}" -iname "docker-compose.yml"); do
         [ ! -f "${template}" ] && continue
-        printf "%s\\n" "$(basename ${template})"
+        printf "%s\\n" "${template}" | sed "s|${template_dir}/${1}/||g"
     done
 }
 
