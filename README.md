@@ -1,20 +1,24 @@
 # Quick Start
 
+Provides/decommise web tty instances on demand, using docker-swarm
+infraestructure + traefik tagging + ingress routing.
+
 To download this repository use:
 
     $ git clone --recursive https://github.com/it-dojo/it-dojo.backend
 
 ## Setup local environment
 
-    $ echo 'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
+    $ echo  'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
     $ touch .env #never add the .env content to git!
     $ vagrant plugin install vagrant-hostmanager-ext vagrant-triggers
     $ vagrant up --provision #takes 15-60 mins depending on your connection
 
     $ ANSIBLE_ARGS='--tags api' vagrant up --provision #for subsecuent runs
 
-API provides/decommise web tty instances on demand, using docker-swarm
-infraestructure + traefik tagging + ingress routing
+## Setup dev environment
+
+    $ ./setup.sh [docker-compose-file] #require docker + docker-compose
 
 ### Sample interactions
 
@@ -26,65 +30,30 @@ infraestructure + traefik tagging + ingress routing
     $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/
       HTTP/1.0 200 OK
 
-    # GET SPECIFIC TTY
-    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/id
+    # GET ALL AVAILABLE ENVIRONMENT TTYs
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/env/
       HTTP/1.0 200 OK
 
-    # GET INVALID TTY
-    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/invalid_id
-      HTTP/1.0 404 NOT FOUND
+    # GET SPECIF ENVIRONMENT TTYs
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/env/id
+      HTTP/1.0 200 OK
 
-    # REQUEST NEW TTY
+    # REQUEST NEW TTY (requires docker swarm enabled)
     $ curl -L -k -i -u "admin:admin"        \
         -H "Content-Type: application/json" \
         -X POST                             \
-        -d '{"username":"foobar@it-dojo.io", "template": "tty-base"}' \
+        -d '{"username":"user@it-dojo.io", "template": "core-utils"}' \
         api.it-dojo.io/v0.1/tty
       HTTP/1.0 201 CREATED
 
-    # REQUEST NEW TTY, DRY RUN MODE (when no docker swarm cluster is available)
+    # REQUEST NEW TTY, DRY RUN MODE (doesn't require docker swarm enabled)
     $ curl -L -k -i -u "admin:admin"        \
         -H "Content-Type: application/json" \
         -X POST                             \
-        -d '{"username":"foobar@it-dojo.io", "template": "tty-base", "dry_run": true}' \
+        -d '{"username":"user@it-dojo.io", "template": "core-utils", "dry_run": true}' \
         api.it-dojo.io/v0.1/tty
       HTTP/1.0 201 CREATED
 
     # REMOVE TTY
     $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/id
-      HTTP/1.0 200 OK
-
-
-## Setup dev environment
-
-    $ ./setup.sh [docker-compose-file] #require docker + docker-compose
-
-### Sample interactions
-
-    # GET ALL DISPATCHED TTYs, NO AUTHENTICATION
-    $ curl -i http://localhost:5000/v0.1/tty/
-      HTTP/1.0 401 UNAUTHORIZED
-
-    # GET ALL DISPATCHED TTYs, AUTHENTICATED
-    $ curl -i -u "admin:admin" http://localhost:5000/v0.1/tty/
-      HTTP/1.0 200 OK
-
-    # GET SPECIFIC TTY
-    $ curl -i -u "admin:admin" http://localhost:5000/v0.1/tty/3
-      HTTP/1.0 200 OK
-
-    # GET INVALID TTY
-    $ curl -i -u "admin:admin" http://localhost:5000/v0.1/tty/999999
-      HTTP/1.0 404 NOT FOUND
-
-    # REQUEST NEW TTY
-    $ curl -i -u "admin:admin"              \
-        -H "Content-Type: application/json" \
-        -X POST                             \
-        -d '{"username":"foobar@it-dojo.io", "template": "tty-base"}' \
-        http://localhost:5000/v0.1/tty
-      HTTP/1.0 201 CREATED
-
-    # REMOVE TTY
-    $ curl -i -u "admin:admin" -X DELETE http://localhost:5000/v0.1/tty/1
       HTTP/1.0 200 OK
