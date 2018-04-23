@@ -10,31 +10,49 @@ from datetime import datetime
 
 # temporal imports ==================================================================
 from random import randint
+# app.logger.debug('index => user => None')
 #====================================================================================
 
-#____________________________________________________[ CREATE ]
+#____________________________________________________[ TTY CREATE ]
 @app.route('/v0.1/tty/', methods=['POST'])
 @app.route('/v0.1/tty',  methods=['POST'])
 @requires_auth
 def post_tty():
-    if not request.json or not 'template' in request.json or not 'username' in request.json:
+    valid_tty_request = (
+        request.json
+        or 'template' in request.json
+        or 'username' in request.json
+    )
+
+    if not valid_tty_request:
         abort(400)
 
     if not 'dry_run' in request.json:
-        tty_pool(request.json['template'], 3) #create ttys in advance for upcomming requests
-        tty = TTY.objects(template=request.json['template'], active=False, dry_run=False).first()
+        #create ttys in advance for upcomming requests
+        tty_pool(request.json['template'], 3)
+        tty = TTY.objects(
+            template=request.json['template'],
+            active=False,
+            dry_run=False,
+        ).first()
         if tty is None:
-            output  = tty_controller("create",  request.json['template'] + ".yml").splitlines()
-            uri     = output[-1]
+            stdout  = tty_controller(
+                "create",
+                request.json['template'] + ".yml",
+            ).splitlines()
+            uri     = stdout[-1]
             dry_run = False
         else:
             tty.active   = True
             tty.username = request.json['username']
             tty.save()
-            return jsonify({'tty': format_reply(tty)}), 201
+            return jsonify({'tty': tty2json(tty)}), 201
     else:
-        uri     = u'tty-' + str(randint(0, 9)) + str(randint(0, 9)) + str(randint(0, 9))
-        uri    += ".it-dojo.io"
+        uri = u'tty-' \
+                + str(randint(0, 9)) \
+                + str(randint(0, 9)) \
+                + str(randint(0, 9))
+        uri+= ".it-dojo.io"
         dry_run = True
 
     new_tty = TTY(
@@ -44,15 +62,15 @@ def post_tty():
                 dry_run  = dry_run,
               ).save()
 
-    return jsonify({'tty': format_reply(new_tty)}), 201
+    return jsonify({'tty': tty2json(new_tty)}), 201
 
-#____________________________________________________[ READ ]
+#____________________________________________________[ TTY READ ]
 @app.route('/v0.1/tty/', methods=['GET'])
 @app.route('/v0.1/tty',  methods=['GET'])
 @requires_auth
 def get_ttys():
     ttys = TTY.objects()
-    return jsonify({'ttys': [format_reply(tty) for tty in ttys]})
+    return jsonify({'ttys': [tty2json(tty) for tty in ttys]})
 
 @app.route('/v0.1/tty/<tty_id>/', methods=['GET'])
 @app.route('/v0.1/tty/<tty_id>',  methods=['GET'])
@@ -60,13 +78,13 @@ def get_ttys():
 def get_tty(tty_id):
     try:
         tty = TTY.objects(id=tty_id).first()
+        if tty is None:
+            abort(404)
     except:
         abort(404)
-    if tty is None:
-        abort(404)
-    return jsonify({'tty': format_reply(tty)})
+    return jsonify({'tty': tty2json(tty)})
 
-#____________________________________________________[ UPDATE ]
+#____________________________________________________[ TTY UPDATE ]
 @app.route('/v0.1/tty/<tty_id>/', methods=['PUT'])
 @app.route('/v0.1/tty/<tty_id>',  methods=['PUT'])
 @requires_auth
@@ -91,27 +109,98 @@ def update_task(tty_id):
     tty.username = request.json.get('active',   tty.active)
     tty.save()
 
-    return jsonify({'tty': format_reply(tty)})
+    return jsonify({'tty': tty2json(tty)})
 
-#____________________________________________________[ DELETE ]
+#____________________________________________________[ TTY DELETE ]
 @app.route('/v0.1/tty/<tty_id>/', methods=['DELETE'])
 @app.route('/v0.1/tty/<tty_id>',  methods=['DELETE'])
 @requires_auth
 def delete_task(tty_id):
     try:
         tty = TTY.objects(id=tty_id).first()
+        if tty is None:
+            abort(404)
     except:
-        abort(404)
-    if tty is None:
         abort(404)
 
     if not tty.dry_run:
         image_id = tty.uri # tty-uu3js81.it-dojo.io
         image_id = image_id[4:image_id.index(".")] # uu3js81
-        output   = tty_controller("delete", tty.template, image_id).splitlines()
+        stdout   = tty_controller("delete", tty.template, image_id).splitlines()
 
     tty.delete()
     return jsonify({'result': True})
+
+#____________________________________________________[ TTY ENV READ ]
+@app.route('/v0.1/tty/env/', methods=['GET'])
+@app.route('/v0.1/tty/env',  methods=['GET'])
+@requires_auth
+def get_envs():
+    # stdout  = tty_controller(
+        # "-T",
+        # "../templates/",
+        # "-L",
+    # ).splitlines()
+    # ./tty-controller -T ../templates/ -L
+    # DevOps/linux/core-utils/docker-compose.yml
+    # DevOps/conf_managers/terraform/docker-compose.yml
+
+    # stdout  = [
+        # "DevOps/linux/core-utils/docker-compose.yml",
+        # "DevOps/conf_managers/terraform/docker-compose.yml",
+    # ]
+
+    # stdout  = [
+        # "DevOps",
+        # "WebDev",
+        # "BigData",
+    # ]
+
+    stdout  = {
+        "DevOps": [
+            "linux/core-utils",
+            "conf_managers/terraform",
+        ],
+        "WebDev" : [],
+        "BigData": [],
+    }
+
+    return jsonify({'envs': stdout})
+
+@app.route('/v0.1/tty/env/<env_id>/', methods=['GET'])
+@app.route('/v0.1/tty/env/<env_id>',  methods=['GET'])
+@requires_auth
+def get_env(env_id):
+    # stdout  = tty_controller(
+        # "-T",
+        # "../templates/",
+        # "-L",
+    # ).splitlines()
+    # ./tty-controller -T ../templates/ -L
+    # DevOps/linux/core-utils/docker-compose.yml
+    # DevOps/conf_managers/terraform/docker-compose.yml
+
+    stdout  = {
+        "DevOps": [
+            "linux/core-utils",
+            "conf_managers/terraform",
+        ],
+        "WebDev" : [],
+        "BigData": [],
+    }
+
+    env = None
+
+    try:
+        env = stdout[env_id]
+        if env is None:
+            abort(404)
+    except:
+        abort(404)
+
+    return jsonify({'env': env})
+
+##############################################################################
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -121,7 +210,6 @@ def not_found(error=None):
     }
     resp = jsonify(message)
     resp.status_code = 404
-
     return resp
 
 @app.errorhandler(400)
@@ -132,7 +220,6 @@ def not_found(error=None):
     }
     resp = jsonify(message)
     resp.status_code = 404
-
     return resp
 
 @app.errorhandler(405)
@@ -143,15 +230,15 @@ def not_found(error=None):
     }
     resp = jsonify(message)
     resp.status_code = 405
-
     return resp
 
-def format_reply(tty):
+def tty2json(tty):
     formatted_tty = {}
     for field in tty:
         if field == 'id':
             #replace id field for a control uri
-            formatted_tty['endpoint'] = url_for('get_tty', tty_id=tty['id'], _external=True)
+            formatted_tty['endpoint'] = url_for(
+                'get_tty', tty_id=tty['id'], _external=True)
         elif field == 'created':
             formatted_tty['created'] = tty['created'].__str__()
         elif field == 'destroyed':

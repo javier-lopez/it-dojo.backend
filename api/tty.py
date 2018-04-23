@@ -15,8 +15,8 @@ def async_tty_pool(app, template, required_instances):
             required_instances  = 0
 
         for instance in range(required_instances):
-            output  = tty_controller("create", template + ".yml").splitlines()
-            uri     = output[-1]
+            stdout  = tty_controller("create", template + ".yml").splitlines()
+            uri     = stdout[-1]
 
             new_tty = TTY(
                         template = template,
