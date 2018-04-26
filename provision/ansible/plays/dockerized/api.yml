@@ -4,3 +4,8 @@
         tags: [ 'services', 'build', 'api' ] }
     - { role: api,
         tags: [ 'services', 'api' ] }
+
+- hosts: docker-swarm
+  roles:
+    - { role: api-docker-in-docker-volumes,
+        tags: [ 'services', 'api' ] }

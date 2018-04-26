@@ -21,13 +21,11 @@
 
 - name: create api compose template
   template: src=api.yml dest={{docker_compose_path}}/api.yml
-  register: compose_template
 
 - name: deploy api stack
   command: docker stack deploy -c {{docker_compose_path}}/api.yml api
   register: api_exec
   when:
     - inventory_hostname == docker_swarm_primary_manager
-    #- compose_template.changed #this line is commented in order to force updating the api service, useful in development phase
 
 - debug: var=api_exec

@@ -1,0 +1,7 @@
+#https://stackoverflow.com/questions/31381322/docker-in-docker-cannot-mount-volume
+- name: ln -s /templates to {{docker_containers_volume_path}}/api/templates/ in order to use tty-controller within the api container
+  file:
+    src:   "{{docker_containers_volume_path}}/api/templates/"
+    dest:  /templates
+    state: link
+    mode:  0755
