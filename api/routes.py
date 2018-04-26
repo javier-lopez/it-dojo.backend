@@ -152,27 +152,27 @@ def get_envs():
         # "-L",
     # ).splitlines()
     # ./tty-controller -T ../templates/ -L
-    # DevOps/linux/core-utils/docker-compose.yml
-    # DevOps/conf_managers/terraform/docker-compose.yml
+    # devops/linux/core-utils/docker-compose.yml
+    # devops/conf_managers/terraform/docker-compose.yml
 
     # stdout  = [
-        # "DevOps/linux/core-utils/docker-compose.yml",
-        # "DevOps/conf_managers/terraform/docker-compose.yml",
+        # "devops/linux/core-utils/docker-compose.yml",
+        # "devops/conf_managers/terraform/docker-compose.yml",
     # ]
 
     # stdout  = [
-        # "DevOps",
-        # "WebDev",
-        # "BigData",
+        # "devops",
+        # "webdev",
+        # "bigdata",
     # ]
 
     stdout  = {
-        "DevOps": [
+        "devops": [
             "linux/core-utils",
             "conf_managers/terraform",
         ],
-        "WebDev" : [],
-        "BigData": [],
+        "webdev" : [],
+        "bigdata": [],
     }
 
     return jsonify({'envs': stdout})
@@ -187,16 +187,16 @@ def get_env(env_id):
         # "-L",
     # ).splitlines()
     # ./tty-controller -T ../templates/ -L
-    # DevOps/linux/core-utils/docker-compose.yml
-    # DevOps/conf_managers/terraform/docker-compose.yml
+    # devops/linux/core-utils/docker-compose.yml
+    # devops/conf_managers/terraform/docker-compose.yml
 
     stdout  = {
-        "DevOps": [
+        "devops": [
             "linux/core-utils",
             "conf_managers/terraform",
         ],
-        "WebDev" : [],
-        "BigData": [],
+        "webdev" : [],
+        "bigdata": [],
     }
 
     env = None
