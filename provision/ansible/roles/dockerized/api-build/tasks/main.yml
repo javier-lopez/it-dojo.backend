@@ -7,7 +7,7 @@
     - files/*
     - files/.env
 
-- name: upload files (directories)
+- name: upload directories
   synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api-build" delete=yes recursive=yes copy_links=yes
   with_items:
     - api
