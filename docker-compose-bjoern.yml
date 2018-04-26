@@ -32,7 +32,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
+      - ./bin/docker.static.18.03.0-ce:/usr/bin/docker
       - ./bin/tty-controller:/usr/bin/tty-controller
       - ./templates:/templates/
     working_dir: "/usr/src/app"

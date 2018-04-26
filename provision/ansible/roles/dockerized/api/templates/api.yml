@@ -4,7 +4,7 @@ services:
   mongodb:
     image: aashreys/mongo-auth:latest
     volumes:
-      - "{{docker_containers_volume_path}}/api/mongodb/data:/data/db:Z"
+      - "{{docker_containers_volume_path}}/api/mongodb/data:/data/db"
     #ports:
       #- "27017:27017"
     deploy:
@@ -33,9 +33,9 @@ services:
       - mongodb
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
-      - "{{docker_containers_volume_path}}/api/bin/tty-controller:/usr/bin/tty-controller:Z"
-      - "{{docker_containers_volume_path}}/api/templates/:/templates/:Z"
+      - "{{docker_containers_volume_path}}/api/bin/docker.static.18.03.0-ce:/usr/bin/docker"
+      - "{{docker_containers_volume_path}}/api/bin/tty-controller:/usr/bin/tty-controller"
+      - "{{docker_containers_volume_path}}/api/templates/:/templates/"
     working_dir: "/usr/src/app"
     deploy:
 {% if api_mode is defined %}{% if api_mode[0] == 'replicated' %}
@@ -61,8 +61,6 @@ services:
     environment:
       - LANG=C.UTF-8
       - FLASK_APP=run.py
-      - SMTP_USER=postmaster@it-dojo.com
-      - SMTP_PASSWD=you-will-never-guess
 
 networks:
   traefik_external:
