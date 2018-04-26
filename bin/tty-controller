@@ -1,5 +1,5 @@
 #!/bin/sh
-VERSION="2018.03.04-22:46"
+VERSION="2018.04.23-17:01"
 
 _usage() {
     printf "%s\\n" "Usage: ${progname} [OPTION]... COMMAND OPTION..."
@@ -32,7 +32,12 @@ _show_version() {
 }
 
 _list_templates() {
-    for template in $(find "${template_dir}/${1}" -iname "docker-compose.yml"); do
+    case "${1}" in
+        s*) pattern="docker-compose.yml" ;;
+        d*) pattern="*.yml" ;;
+    esac
+
+    for template in $(find "${template_dir}/${1}" -iname "${pattern}"); do
         [ ! -f "${template}" ] && continue
         printf "%s\\n" "${template}" | sed "s|${template_dir}/${1}/||g"
     done
@@ -44,25 +49,31 @@ _tty_controller() {
     case "${command}" in
         c*)
             [ -z "${1}" ] && _die "Missing template, ACTION: create"
-            static_template="${template_dir}/static/${1}"
-            basename_static_template="$(basename "${static_template}" .yml)"
+            static_template="$(dirname ${template_dir}/static/${1})"
+            dirname_dynamic_template="$(dirname "${template_dir}/dynamic/${1}")"
 
-            if [ -f "${static_template}" ]; then
-                tty_id="$(< /dev/urandom tr -dc a-z0-9 | head -c10 )"
-                dynamic_template="${template_dir}/dynamic/${basename_static_template}-${tty_id}.yml"
-                while test -f "${dynamic_template}"; do
+            if [ -d "${static_template}" ]; then
+                tty_id="$(< /dev/urandom tr -dc a-z0-9 | head -c10)"
+                dynamic_template_dir="${dirname_dynamic_template}/tty-${tty_id}"
+                while test -d "${dynamic_template_dir}"; do
                     tty_id="$(< /dev/urandom tr -dc A-Za-z0-9 | head -c10)"
-                    dynamic_template="${template_dir}/dynamic/${basename_static_template}-${tty_id}.yml"
+                    dynamic_template_dir="${dirname_dynamic_template}/tty-${tty_id}"
                 done
-                cp "${static_template}" "${dynamic_template}"
+                dynamic_template="${dynamic_template_dir}/docker-compose.yml"
+
+                mkdir -p "${dirname_dynamic_template}"
+                cp  -r "${static_template}"   "${dynamic_template_dir}"
                 sed -i "s:TTY_ID:${tty_id}:g" "${dynamic_template}"
-                printf "%s\\n" "docker stack deploy -c ${dynamic_template} ${basename_static_template}-${tty_id}"
-                docker stack deploy -c "${dynamic_template}" "${basename_static_template}-${tty_id}"
+                printf "%s\\n" "docker stack deploy -c ${dynamic_template} tty-${tty_id}"
+                docker stack deploy -c "${dynamic_template}" "tty-${tty_id}"
                 last_status="${?}"
                 if [ X"${last_status}" = X"0" ]; then
-                    printf "%s\\n" "tty-${tty_id}.it-dojo.io"
+                    awk '/traefik.frontend.rule=/ {gsub("\"", "");print "uri:", $NF}' "${dynamic_template}"
+                    printf "%s\\n" "readme: ${dynamic_template_dir}/README.md"
                 else
-                    rm -rf "${dynamic_template}"
+                    rm -rf "${dynamic_template_dir}"
+                    #rmdir --parents --ignore-fail-on-non-empty "${dirname_dynamic_template}"
+                    rmdir -p "${dirname_dynamic_template}"
                 fi
                 return "${last_status}"
             else
@@ -82,22 +93,27 @@ _tty_controller() {
         d*)
             [ -z "${1}" ] && _die "Missing template, ACTION: delete"
             [ -z "${2}" ] && _die "Missing image_id, ACTION: delete"
-            tty_template="${1}" #sample: tty-base
-            tty_id="${2}"       #sample: 89120x9182
-            dynamic_template="${template_dir}/dynamic/${tty_template}-${tty_id}.yml"
 
-            if [ ! -f "${dynamic_template}" ]; then
-                printf "%s\\n" "'${tty_template}-${tty_id}.yml' image doesn't exists!" >&2
-                return 2
+            #sample: DevOps/linux/core-utils/
+            dirname_dynamic_template="$(dirname "${template_dir}/dynamic/${1}")"
+            tty_id="${2}" #sample: 89H1201982
+
+            dynamic_template_dir="${dirname_dynamic_template}/${tty_id}"
+
+            if [ ! -d "${dynamic_template_dir}" ]; then
+                printf "%s\\n" "'${dynamic_template_dir}' instance doesn't exists!" >&2
+                return 1
             fi
 
-            printf "%s\\n" "docker stack rm ${tty_template}-${tty_id}"
-            docker stack rm "${tty_template}-${tty_id}"
+            printf "%s\\n" "docker stack rm tty-${tty_id}"
+            docker stack rm "tty-${tty_id}"
 
             last_status="${?}"
             if [ X"${last_status}" = X"0" ]; then
                 printf "%s\\n" "tty-${tty_id}.it-dojo.io deleted!"
-                rm -rf "${dynamic_template}"
+                rm -rf "${dynamic_template_dir}"
+                #rmdir --parents --ignore-fail-on-non-empty "${dirname_dynamic_template}"
+                rmdir -p "${dirname_dynamic_template}"
             fi
             return "${last_status}"
             ;;
@@ -130,7 +146,7 @@ for arg in "${@}"; do #parse options
                         case "${2}" in
                             -*) _die "Option '${arg}' requires a parameter";;
                         esac
-                        shift; template_dir="${1}"; [ "${1}" ] && shift
+                        shift; template_dir="$(realpath ${1})"; [ "${1}" ] && shift
                     else
                         _die "Option '${arg}' requires a parameter"
                     fi

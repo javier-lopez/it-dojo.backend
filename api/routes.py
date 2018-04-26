@@ -7,6 +7,7 @@ from api.decorators import requires_auth
 
 from sh import tty_controller
 from datetime import datetime
+from base64   import b64encode
 
 # temporal imports ==================================================================
 from random import randint
@@ -27,38 +28,47 @@ def post_tty():
     if not valid_tty_request:
         abort(400)
 
+    template = request.json['template']
+    username = request.json['username']
+
     if not 'dry_run' in request.json:
         #create ttys in advance for upcomming requests
-        tty_pool(request.json['template'], 3)
-        tty = TTY.objects(
-            template=request.json['template'],
-            active=False,
-            dry_run=False,
-        ).first()
+        tty_pool(template, 3)
+        tty = TTY.objects(template=template, active=False, dry_run=False,).first()
         if tty is None:
-            stdout  = tty_controller(
-                "create",
-                request.json['template'] + ".yml",
-            ).splitlines()
-            uri     = stdout[-1]
+            stdout  = {}
+            for line in tty_controller("create", template + "/docker-compose.yml").splitlines():
+                if line.find(':') >= 0:
+                    k,v = line.split(":",2) # split at first : produce max 2 items
+                else:
+                    k,v = ['stdout', line]  # split at first : produce max 2 items
+                stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list
+
+            uri     = stdout["uri"]
+            readme  = stdout["readme"]
+            f       = open(readme, "r")
+            readme  = b64encode(f.read().encode('utf-8'))
+
             dry_run = False
         else:
             tty.active   = True
-            tty.username = request.json['username']
+            tty.username = username
             tty.save()
             return jsonify({'tty': tty2json(tty)}), 201
     else:
-        uri = u'tty-' \
+        uri = u'tty-'                \
                 + str(randint(0, 9)) \
                 + str(randint(0, 9)) \
                 + str(randint(0, 9))
         uri+= ".it-dojo.io"
+        readme  = b64encode("README.md is missing".encode('utf-8'))
         dry_run = True
 
     new_tty = TTY(
-                template = request.json['template'],
-                username = request.json['username'],
+                template = template,
+                username = username,
                 uri      = uri,
+                readme   = readme,
                 dry_run  = dry_run,
               ).save()
 
