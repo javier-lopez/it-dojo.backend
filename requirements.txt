@@ -1,5 +1,5 @@
 sh
-flask
+flask==0.12.3 #1.0 version is broken: https://github.com/pallets/flask/issues/2725
 flask-mail
 flask-bcrypt
 flask-mongoengine
