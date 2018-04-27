@@ -7,6 +7,11 @@ To download this repository use:
 
     $ git clone --recursive https://github.com/it-dojo/it-dojo.backend
 
+If you already downloaded the repository without the submodules, use the
+following to correct:
+
+    $ git submodule update --init --recursive
+
 ## Setup local environment
 
     $ echo  'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
