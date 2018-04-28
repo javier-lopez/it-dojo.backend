@@ -18,6 +18,7 @@ play_post_deployment:       true
 ###########
 # General #
 ###########
+env: vagrant
 domain: it-dojo.io
 persistent_storage_path: /persistent_storage
 logs_path: "{{persistent_storage_path}}/logs"
