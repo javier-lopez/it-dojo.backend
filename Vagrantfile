@@ -53,8 +53,8 @@ raise "vagrant-hostmanager-ext plugin must be installed: $ vagrant plugin instal
 raise "vagrant-triggers plugin must be installed: $ vagrant plugin install vagrant-triggers" unless Vagrant.has_plugin? "vagrant-triggers"
 
 raise "cannot continue without submodules: $ git submodule update --init --recursive" unless File.exists?("templates/static/README.md")
-raise "cannot continue without './.env' file" File.exists?(".env")
-raise "cannot continue without './.vault_pass.txt' file" File.exists?(".vault_pass.txt")
+raise "cannot continue without './.env' file" unless File.exists?(".env")
+raise "cannot continue without './.vault_pass.txt' file" unless File.exists?(".vault_pass.txt")
 
 #cross-platform way of finding an executable in the $PATH.
 def which(cmd)
