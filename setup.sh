@@ -3,7 +3,7 @@ CURRENT_DIR="$(cd "$(dirname "${0}")" && pwd)"
 
 set -x
 
-COMPOSE_FILE="${1:-docker-compose.yml}"
+COMPOSE_FILE="${1:-docker-compose-werkzeug.yml}"
 COMPOSE_FILE="${CURRENT_DIR}/${COMPOSE_FILE}"
 
 cd "${CURRENT_DIR}"
