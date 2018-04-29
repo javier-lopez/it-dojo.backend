@@ -11,6 +11,7 @@
   synchronize: src={{item}} dest="{{docker_containers_volume_path}}/api-build" delete=yes recursive=yes copy_links=yes
   with_items:
     - api
+    - nginx
 
 - name: build api container, rm -f
   shell: |
