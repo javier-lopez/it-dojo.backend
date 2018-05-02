@@ -95,10 +95,10 @@ _tty_controller() {
             [ -z "${2}" ] && _die "Missing image_id, ACTION: delete"
 
             #sample: DevOps/linux/core-utils/
-            dirname_dynamic_template="$(dirname "${template_dir}/dynamic/${1}")"
+            dirname_dynamic_template="${template_dir}/dynamic/${1}"
             tty_id="${2}" #sample: 89H1201982
 
-            dynamic_template_dir="${dirname_dynamic_template}/${tty_id}"
+            dynamic_template_dir="${dirname_dynamic_template}/tty-${tty_id}"
 
             if [ ! -d "${dynamic_template_dir}" ]; then
                 printf "%s\\n" "'${dynamic_template_dir}' instance doesn't exists!" >&2
@@ -113,7 +113,7 @@ _tty_controller() {
                 printf "%s\\n" "tty-${tty_id}.it-dojo.io deleted!"
                 rm -rf "${dynamic_template_dir}"
                 #rmdir --parents --ignore-fail-on-non-empty "${dirname_dynamic_template}"
-                rmdir -p "${dirname_dynamic_template}"
+                rmdir -p "${dirname_dynamic_template}" >/dev/null 2>&1
             fi
             return "${last_status}"
             ;;
