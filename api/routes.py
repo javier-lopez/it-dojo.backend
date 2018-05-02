@@ -8,6 +8,7 @@ from api.decorators import requires_auth
 from sh import tty_controller
 from datetime import datetime
 from base64   import b64encode
+from os       import path
 
 # temporal imports ==================================================================
 from random import randint
@@ -46,8 +47,12 @@ def post_tty():
 
             uri     = stdout["uri"]
             readme  = stdout["readme"]
-            f       = open(readme, "r")
-            readme  = b64encode(f.read().encode('utf-8'))
+            try:
+                f       = open(readme, "r")
+                readme  = f.read()
+            except:
+                readme  = path.basename(readme) + " file doesn't exists"
+            readme  = b64encode(readme.encode('utf-8'))
 
             dry_run = False
         else:

@@ -73,7 +73,7 @@ _tty_controller() {
                 else
                     rm -rf "${dynamic_template_dir}"
                     #rmdir --parents --ignore-fail-on-non-empty "${dirname_dynamic_template}"
-                    rmdir -p "${dirname_dynamic_template}"
+                    rmdir -p "${dirname_dynamic_template}" >/dev/null 2>&1
                 fi
                 return "${last_status}"
             else
