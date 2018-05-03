@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  swarm-exec:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: jlpz/skopos-plugin-swarm-exec:latest
+    environment:
+      - TERM=xterm

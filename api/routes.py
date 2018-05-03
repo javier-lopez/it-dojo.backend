@@ -48,10 +48,10 @@ def post_tty():
             uri     = stdout["uri"]
             readme  = stdout["readme"]
             try:
-                f       = open(readme, "r")
-                readme  = f.read()
+                f      = open(readme, "r")
+                readme = f.read()
             except:
-                readme  = path.basename(readme) + " file doesn't exists"
+                readme = path.basename(readme) + " file doesn't exists"
             readme  = b64encode(readme.encode('utf-8'))
 
             dry_run = False
