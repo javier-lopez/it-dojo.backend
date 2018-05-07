@@ -1,5 +1,5 @@
 #!/bin/sh
-VERSION="2018.04.23-17:01"
+VERSION="2018.05.06-11:19"
 
 _usage() {
     printf "%s\\n" "Usage: ${progname} [OPTION]... COMMAND OPTION..."
@@ -11,6 +11,8 @@ _usage() {
     printf "%s\\n" "  read   template image_id"
     printf "%s\\n" "  update template image_id"
     printf "%s\\n" "  delete template image_id"
+    printf "\\n"
+    printf "%s\\n" "  exec   template image_id COMMAND ARGS ..."
     printf "\\n"
     printf "%s\\n" "OPTIONS:"
     printf "\\n"
@@ -94,7 +96,7 @@ _tty_controller() {
             [ -z "${1}" ] && _die "Missing template, ACTION: delete"
             [ -z "${2}" ] && _die "Missing image_id, ACTION: delete"
 
-            #sample: DevOps/linux/core-utils/
+            #sample: devops/linux/core-utils/
             dirname_dynamic_template="${template_dir}/dynamic/${1}"
             tty_id="${2}" #sample: 89H1201982
 
@@ -115,6 +117,42 @@ _tty_controller() {
                 #rmdir --parents --ignore-fail-on-non-empty "${dirname_dynamic_template}"
                 rmdir -p "${dirname_dynamic_template}" >/dev/null 2>&1
             fi
+            return "${last_status}"
+            ;;
+        e*)
+            [ -z "${1}" ] && _die "Missing template, ACTION: exec"
+            [ -z "${2}" ] && _die "Missing image_id, ACTION: exec"
+
+            #sample: devops/linux/core-utils/
+            dirname_dynamic_template="${template_dir}/dynamic/${1}"
+            tty_id="${2}" #sample: 89H1201982
+
+            dynamic_template_dir="${dirname_dynamic_template}/tty-${tty_id}"
+
+            if [ ! -d "${dynamic_template_dir}" ]; then
+                printf "%s\\n" "'${dynamic_template_dir}' instance doesn't exists!" >&2
+                return 1
+            fi
+
+            printf "%s\\n" "docker stack ps tty-${tty_id} --format {{.ID}} {{.Name}} {{.Image}} {{.Node}} {{.DesiredState}} {{.CurrentState}}"
+            task_id="$(docker stack ps "tty-${tty_id}" \
+                --format "{{.ID}} {{.Name}} {{.Image}} {{.Node}} {{.DesiredState}} {{.CurrentState}}" | \
+                awk '{print $1; exit}')"
+
+            shift; shift; printf "%s\\n" "${task_id}"
+
+            printf "%s\\n" "swarm-exec task-exec ${task_id} ${@}"
+            swarm_exec_stdout="$(swarm-exec task-exec "${task_id}" ${@} 2>&1)"
+            last_status="${?}"
+
+            if [ X"${last_status}" = X"0" ]; then
+                printf "%s" 'exitcode:0 (task state:"sucess", message:"started", err:"none")'
+            fi
+
+            #override real exit status to avoid python exception, instead
+            #output exitcode to stdout with swarm-exec syntax
+            printf "%s\\n" "${swarm_exec_stdout}"
+            last_status="0"
             return "${last_status}"
             ;;
     esac

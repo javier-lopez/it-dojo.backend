@@ -40,7 +40,7 @@ def post_tty():
             stdout  = {}
             for line in tty_controller("create", template + "/docker-compose.yml").splitlines():
                 if line.find(':') >= 0:
-                    k,v = line.split(":",2) # split at first : produce max 2 items
+                    k,v = line.split(":", maxsplit=1) # split at first : produce max 2 items, (0,1)
                 else:
                     k,v = ['stdout', line]  # split at first : produce max 2 items
                 stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list
@@ -51,7 +51,7 @@ def post_tty():
                 f      = open(readme, "r")
                 readme = f.read()
             except:
-                readme = path.basename(readme) + " file doesn't exists"
+                readme = path.basename(readme) + " is missing"
             readme  = b64encode(readme.encode('utf-8'))
 
             dry_run = False
@@ -146,6 +146,52 @@ def delete_task(tty_id):
     tty.delete()
     return jsonify({'result': True})
 
+######################################################################
+
+#____________________________________________________[ TTY RUN TESTS ]
+@app.route('/v0.1/tty/<tty_id>/test/', methods=['GET', 'POST'])
+@app.route('/v0.1/tty/<tty_id>/test',  methods=['GET', 'POST'])
+@requires_auth
+def post_tty_test(tty_id):
+    try:
+        tty = TTY.objects(id=tty_id).first()
+        if tty is None:
+            abort(404)
+    except:
+        abort(404)
+
+    if request.method == 'POST':
+        valid_tty_request = (
+            request.json
+            or 'script' in request.json
+        )
+
+        if not valid_tty_request:
+            abort(400)
+
+        script = request.json['script']
+    else:
+        script = "/bin/run-tests"
+
+    image_id = tty.uri # tty-uu3js81.it-dojo.io
+    image_id = image_id[4:image_id.index(".")] # uu3js81
+
+    stdout  = {}
+
+    for line in tty_controller("exec", tty.template,  image_id, script).splitlines():
+        if line.find(':') >= 0:
+            k,v = line.split(":", maxsplit=1) # split at first : produce max 2 items, (0,1)
+        else:
+            k,v = ['stdout', line]  # split at first : produce max 2 items
+        stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list
+
+    app.logger.debug('exitcode => {}'.format(stdout["exitcode"]))
+    exitcode = stdout["exitcode"].split()[0]
+
+    return jsonify({'result': exitcode}), 201
+
+######################################################################
+
 #____________________________________________________[ TTY ENV READ ]
 @app.route('/v0.1/tty/env/', methods=['GET'])
 @app.route('/v0.1/tty/env',  methods=['GET'])
@@ -217,6 +263,21 @@ def get_env(env_id):
 
 ##############################################################################
 
+def tty2json(tty):
+    formatted_tty = {}
+    for field in tty:
+        if field == 'id':
+            #replace id field for a control uri
+            formatted_tty['endpoint'] = url_for(
+                'get_tty', tty_id=tty['id'], _external=True)
+        elif field == 'created':
+            formatted_tty['created'] = tty['created'].__str__()
+        elif field == 'destroyed':
+            formatted_tty['destroyed'] = tty['created'].__str__()
+        else:
+            formatted_tty[field] = tty[field]
+    return formatted_tty
+
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
@@ -246,18 +307,3 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 405
     return resp
-
-def tty2json(tty):
-    formatted_tty = {}
-    for field in tty:
-        if field == 'id':
-            #replace id field for a control uri
-            formatted_tty['endpoint'] = url_for(
-                'get_tty', tty_id=tty['id'], _external=True)
-        elif field == 'created':
-            formatted_tty['created'] = tty['created'].__str__()
-        elif field == 'destroyed':
-            formatted_tty['destroyed'] = tty['created'].__str__()
-        else:
-            formatted_tty[field] = tty[field]
-    return formatted_tty

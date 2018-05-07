@@ -34,6 +34,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./bin/docker.static.18.03.0-ce:/usr/bin/docker
       - ./bin/tty-controller:/usr/bin/tty-controller
+      - ./bin/swarm-exec/swarm-exec:/usr/bin/swarm-exec
+      - ./bin/swarm-exec/skpp.py:/usr/bin/skpp.py
       - ./templates:/templates/
     working_dir: "/usr/src/app"
     restart: on-failure:5

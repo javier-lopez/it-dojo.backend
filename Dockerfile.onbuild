@@ -1,6 +1,7 @@
 FROM python:3-onbuild
 EXPOSE 5000
 RUN  pip install gunicorn bjoern cheroot #wsgi servers
+RUN  pip install requests docker #https://github.com/opsani/skopos-plugin-swarm-exec deps
 CMD [ "python", "-m", "flask", "run" ]
 
 #  vim: set ts=8 sw=4 tw=0 ft=dockerfile :

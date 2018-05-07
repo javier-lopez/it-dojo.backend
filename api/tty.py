@@ -19,7 +19,7 @@ def async_tty_pool(app, template, required_instances):
             stdout  = {}
             for line in tty_controller("create", template + "/docker-compose.yml").splitlines():
                 if line.find(':') >= 0:
-                    k,v = line.split(":",2) # split at first : produce max 2 items
+                    k,v = line.split(":", maxsplit=1) # split at first : produce max 2 items, (0,1)
                 else:
                     k,v = ['stdout', line]  # split at first : produce max 2 items
                 stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list

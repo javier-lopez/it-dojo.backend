@@ -35,19 +35,35 @@ following to correct:
     $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/
       HTTP/1.0 200 OK
 
-    # GET ALL AVAILABLE ENVIRONMENT TTYs
+    # GET TTY DETAILS
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/<id>
+      HTTP/1.0 200 OK
+
+    # GET AVAILABLE ENVIRONMENTS
     $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/env/
       HTTP/1.0 200 OK
 
-    # GET SPECIF ENVIRONMENT TTYs
-    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/env/id
+    # GET ENVIRONMENT DETAILS
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/env/<id>
+      HTTP/1.0 200 OK
+
+    # RUN TTY TESTS
+    $ curl -L -k -i -u "admin:admin" api.it-dojo.io/v0.1/tty/<id>/test
+      HTTP/1.0 200 OK
+
+    # RUN SPECIFIC TTY TESTS
+    $ curl -L -k -i -u "admin:admin"        \
+        -H "Content-Type: application/json" \
+        -X POST                             \
+        -d '{"script":"echo"}'              \
+        api.it-dojo.io/v0.1/tty/<id>/test
       HTTP/1.0 200 OK
 
     # REQUEST NEW TTY (requires docker swarm enabled)
     $ curl -L -k -i -u "admin:admin"        \
         -H "Content-Type: application/json" \
         -X POST                             \
-        -d '{"username":"user@it-dojo.io", "template": "core-utils"}' \
+        -d '{"username":"user@it-dojo.io", "template": "devops/linux/core-utils"}' \
         api.it-dojo.io/v0.1/tty
       HTTP/1.0 201 CREATED
 
@@ -55,10 +71,10 @@ following to correct:
     $ curl -L -k -i -u "admin:admin"        \
         -H "Content-Type: application/json" \
         -X POST                             \
-        -d '{"username":"user@it-dojo.io", "template": "core-utils", "dry_run": true}' \
+        -d '{"username":"user@it-dojo.io", "template": "devops/linux/core-utils", "dry_run": true}' \
         api.it-dojo.io/v0.1/tty
       HTTP/1.0 201 CREATED
 
     # REMOVE TTY
-    $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/id
+    $ curl -L -k -i -u "admin:admin" -X DELETE api.it-dojo.io/v0.1/tty/<id>
       HTTP/1.0 200 OK

@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app/
 RUN  pip install --no-cache-dir -r requirements.txt
 RUN  pip install gunicorn bjoern cheroot #wsgi servers
+RUN  pip install requests docker #https://github.com/opsani/skopos-plugin-swarm-exec deps
 
 COPY . /usr/src/app
 

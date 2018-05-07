@@ -35,6 +35,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - "{{docker_containers_volume_path}}/api/bin/docker.static.18.03.0-ce:/usr/bin/docker"
       - "{{docker_containers_volume_path}}/api/bin/tty-controller:/usr/bin/tty-controller"
+      - "{{docker_containers_volume_path}}/api/bin/swarm-exec/swarm-exec:/usr/bin/swarm-exec"
+      - "{{docker_containers_volume_path}}/api/bin/swarm-exec/skpp.py:/usr/bin/skpp.py"
       - "{{docker_containers_volume_path}}/api/templates/:/templates/"
     working_dir: "/usr/src/app"
     deploy:
