@@ -4,7 +4,7 @@ from datetime import datetime
 class TTY(db.Document):
     template   = db.StringField(required=True)
     username   = db.StringField(required=True)
-    uri        = db.StringField(required=True, unique=True)
+    uri        = db.DictField(required=True)
     readme     = db.StringField(required=True)
     created    = db.DateTimeField(default=datetime.now)
     destroyed  = db.DateTimeField()

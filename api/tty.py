@@ -22,12 +22,24 @@ def async_tty_pool(app, template, required_instances):
                     k,v = line.split(":", maxsplit=1) # split at first : produce max 2 items, (0,1)
                 else:
                     k,v = ['stdout', line]  # split at first : produce max 2 items
-                stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list
+                stdout.setdefault(k.strip(), []).append(v.strip())
 
-            uri    = stdout["uri"]
-            readme = stdout["readme"]
-            f      = open(readme, "r")
-            readme = b64encode(f.read().encode('utf-8'))
+            uris   = stdout["uri"]
+            readme = stdout["readme"][0]
+
+            uri    = {}
+            for u in uris:
+                #u => tty-829910.it-dojo.io
+                k   = u.split(".")[0] #k => tty-829910
+                k   = k.split("-")[0] #k => tty
+                uri.setdefault(k, u)
+
+            try:
+                f      = open(readme, "r")
+                readme = f.read()
+            except:
+                readme = path.basename(readme) + " is missing"
+            readme  = b64encode(readme.encode('utf-8'))
 
             new_tty = TTY(
                         template = template,

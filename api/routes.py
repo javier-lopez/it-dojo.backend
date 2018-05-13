@@ -43,10 +43,18 @@ def post_tty():
                     k,v = line.split(":", maxsplit=1) # split at first : produce max 2 items, (0,1)
                 else:
                     k,v = ['stdout', line]  # split at first : produce max 2 items
-                stdout.setdefault(k.strip(), v.strip())  # add to dict & split at . into list
+                stdout.setdefault(k.strip(), []).append(v.strip())
 
-            uri     = stdout["uri"]
-            readme  = stdout["readme"]
+            uris   = stdout["uri"]
+            readme = stdout["readme"][0]
+
+            uri    = {}
+            for u in uris:
+                #u => tty-829910.it-dojo.io
+                k   = u.split(".")[0] #k => tty-829910
+                k   = k.split("-")[0] #k => tty
+                uri.setdefault(k, u)
+
             try:
                 f      = open(readme, "r")
                 readme = f.read()
@@ -66,6 +74,7 @@ def post_tty():
                 + str(randint(0, 9)) \
                 + str(randint(0, 9))
         uri+= ".it-dojo.io"
+        uri = { 'tty' : uri }
         readme  = b64encode("README.md is missing".encode('utf-8'))
         dry_run = True
 
