@@ -68,6 +68,9 @@ def which(cmd)
     nil
 end
 
+raise "cannot continue without 'ansible' < 2.4.2.0: $ sudo add-apt-repository ppa:ansible/ansible; sudo apt-get update; sudo apt-get install ansible" \
+    unless which('ansible-playbook')
+
 host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     hosts.each do |host|
         config.vm.define host[:name] do |machine|
@@ -144,40 +147,21 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         end
                     end
 
-                    if which('ansible-playbook')
-                        machine.vm.provision "ansible" do |ansible|
-                            ansible.playbook    = "provision/ansible/docker-swarm.yml"
-                            ansible.config_file = "provision/ansible/ansible.cfg"
-                            ansible.extra_vars  = "provision/ansible/inventories/vagrant/group_vars/all/vars.yml"
-                            ansible.limit       = "all"
-                            ansible.groups      = ansible_groups
-                            #puts 'ansible.groups is:'
-                            #puts ansible.groups
-                            #ansible.verbose    = "vvv"
-                            #ansible.galaxy_role_file   = "requirements.yml"
-                            ansible.vault_password_file = ".vault_pass.txt"
-                            ansible.raw_arguments  = [
-                                "--extra-vars=@provision/ansible/inventories/vagrant/group_vars/all/vault.yml"
-                            ]
-                            ansible.raw_arguments += Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
-                        end
-                    else
-                        machine.vm.provision "ansible_local" do |ansible|
-                            ansible.playbook    = "provision/ansible/docker-swarm.yml"
-                            ansible.config_file = "provision/ansible/ansible.cfg"
-                            ansible.extra_vars  = "provision/ansible/inventories/vagrant/group_vars/all/vars.yml"
-                            ansible.limit       = "all"
-                            ansible.groups      = ansible_groups
-                            #ansible.verbose    = "vvv"
-                            #puts 'ansible.groups is:'
-                            #puts ansible.groups
-                            #ansible.galaxy_role_file   = "requirements.yml"
-                            ansible.vault_password_file = ".vault_pass.txt"
-                            ansible.raw_arguments  = [
-                                "--extra-vars=@provision/ansible/inventories/vagrant/group_vars/all/vault.yml"
-                            ]
-                            ansible.raw_arguments += Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
-                        end
+                    machine.vm.provision "ansible" do |ansible|
+                        ansible.playbook    = "provision/ansible/docker-swarm.yml"
+                        ansible.config_file = "provision/ansible/ansible.cfg"
+                        ansible.extra_vars  = "provision/ansible/inventories/vagrant/group_vars/all/vars.yml"
+                        ansible.limit       = "all"
+                        ansible.groups      = ansible_groups
+                        #puts 'ansible.groups is:'
+                        #puts ansible.groups
+                        #ansible.verbose    = "vvv"
+                        #ansible.galaxy_role_file   = "requirements.yml"
+                        ansible.vault_password_file = ".vault_pass.txt"
+                        ansible.raw_arguments  = [
+                            "--extra-vars=@provision/ansible/inventories/vagrant/group_vars/all/vault.yml"
+                        ]
+                        ansible.raw_arguments += Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
                     end
                 end
             end
