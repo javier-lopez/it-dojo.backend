@@ -148,7 +148,7 @@ def delete_task(tty_id):
         abort(404)
 
     if not tty.dry_run:
-        image_id = tty.uri # tty-uu3js81.it-dojo.io
+        image_id = tty.uri["tty"] # tty-uu3js81.it-dojo.io
         image_id = image_id[4:image_id.index(".")] # uu3js81
         stdout   = tty_controller("delete", tty.template, image_id).splitlines()
 
