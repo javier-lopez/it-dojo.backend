@@ -182,7 +182,7 @@ def post_tty_test(tty_id):
     else:
         script = "/bin/run-tests"
 
-    image_id = tty.uri # tty-uu3js81.it-dojo.io
+    image_id = tty.uri["tty"] # tty-uu3js81.it-dojo.io
     image_id = image_id[4:image_id.index(".")] # uu3js81
 
     stdout  = {}
