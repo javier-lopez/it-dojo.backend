@@ -173,6 +173,10 @@ echo_mode: ['replicated', 1] #or ['global']
 ##########################
 api_tcp_port: 9090
 api_image: 'registry.{{domain}}/it-dojo-backend-api:latest'
+#api_wsgi: 'werkzeug'
+api_wsgi: 'bjoern'
+#api_wsgi: 'cherry'
+#api_wsgi:  'gunicorn'
 api_subdomains: ['api']
 api_mode: ['global']
 api_containers_repo: https://github.com/it-dojo/it-dojo.containers
