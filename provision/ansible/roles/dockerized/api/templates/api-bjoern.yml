@@ -1,0 +1,94 @@
+version: "3.4"
+
+services:
+  mongodb:
+    image: aashreys/mongo-auth:latest
+    volumes:
+      - "{{docker_containers_volume_path}}/api/mongodb/data:/data/db"
+    #ports:
+      #- "27017:27017"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+      placement:
+        constraints: [node.role == worker]
+    networks:
+      - internal
+    environment:
+      - AUTH=yes
+      - MONGODB_ADMIN_USER=admin
+      - MONGODB_ADMIN_PASS=admin
+      - MONGODB_APPLICATION_DATABASE=it-dojo-backend-api
+      - MONGODB_APPLICATION_USER=it-dojo-backend-api
+      - MONGODB_APPLICATION_PASS=it-dojo-backend-api
+
+  nginx:
+    image: nginx:1.13.10-alpine
+    #ports:
+      #- "5000:80"
+    volumes:
+      - "{{docker_containers_volume_path}}/api-build/nginx:/etc/nginx/conf.d"
+    depends_on:
+      - it-dojo-backend-api
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        max_attempts: 3
+      placement:
+        constraints: [node.role == worker]
+      labels:
+        - "traefik.backend=it-dojo-backend-api"
+        - "traefik.frontend.rule=Host: {% for subdomain in api_subdomains %}{{subdomain}}.{{domain}}, {% endfor %}"
+        - "traefik.docker.network=traefik_external"
+        - "traefik.port=80"
+    networks:
+      - internal
+      - traefik_external
+
+  it-dojo-backend-api:
+    image: "{{api_image}}"
+    ports:
+      - "{{api_tcp_port}}:5000"
+    depends_on:
+      - mongodb
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{docker_containers_volume_path}}/api/bin/docker.static.18.03.0-ce:/usr/bin/docker"
+      - "{{docker_containers_volume_path}}/api/bin/tty-controller:/usr/bin/tty-controller"
+      - "{{docker_containers_volume_path}}/api/bin/swarm-exec/swarm-exec:/usr/bin/swarm-exec"
+      - "{{docker_containers_volume_path}}/api/bin/swarm-exec/skpp.py:/usr/bin/skpp.py"
+      - "{{docker_containers_volume_path}}/api/templates/:/templates/"
+    working_dir: "/usr/src/app"
+    command: python run.bjoern.py
+    deploy:
+{% if api_mode is defined %}{% if api_mode[0] == 'replicated' %}
+      replicas: {{api_mode[1]|default("1")}}
+{% else %}
+      mode: global
+{% endif %}{% endif %}
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      placement:
+        constraints: [node.role == manager]
+      update_config:
+        delay: 2s
+    networks:
+      - internal
+    environment:
+      - LANG=C.UTF-8
+      - APP_ENVIRONMENT=production
+      - APP_ADMIN=admin@it-dojo.io
+      - APP_FROM=no-reply@it-dojo.io
+      - MAILGUN_DOMAIN=mail.it-dojo.io
+      - MAILGUN_API={{vault_mailgun_api}}
+
+networks:
+  traefik_external:
+    external: true
+  internal:
+    driver: overlay
