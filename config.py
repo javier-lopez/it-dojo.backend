@@ -3,9 +3,8 @@ import urllib.parse
 
 class Config(object):
     #general settings
-    APP_ADMINS = os.environ.get('APP_ADMINS') or 'admin@it-dojo.com'
-    APP_ADMINS = APP_ADMINS.split()
-    APP_FROM   = os.environ.get('APP_FROM')   or 'no-reply@it-dojo.io'
+    APP_ADMIN = os.environ.get('APP_ADMIN') or 'admin@it-dojo.com'
+    APP_FROM  = os.environ.get('APP_FROM')   or 'no-reply@it-dojo.io'
 
     #flask-mongoengine
     MONGODB_HOST     = os.environ.get('MONGODB_HOST')     or 'mongodb'
@@ -29,3 +28,12 @@ class Config(object):
     #mailgun
     MAILGUN_API    = os.environ.get('MAILGUN_API')    or 'you-will-never-guess'
     MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN') or 'domain.tld'
+
+
+    #per environment settings
+    APP_ENVIRONMENT = os.environ.get('APP_ENVIRONMENT') or 'development'
+
+    if   APP_ENVIRONMENT == 'development':
+        DEBUG  = True
+    elif APP_ENVIRONMENT == 'production' :
+        DEBUG  = False

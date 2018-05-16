@@ -287,6 +287,10 @@ def tty2json(tty):
             formatted_tty[field] = tty[field]
     return formatted_tty
 
+@app.route('/exception')
+def error():
+    raise Exception("I'm sorry, Dave. I'm afraid I can't do that.")
+
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
@@ -296,6 +300,7 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 404
     return resp
+
 
 @app.errorhandler(400)
 def not_found(error=None):
@@ -315,4 +320,14 @@ def not_found(error=None):
     }
     resp = jsonify(message)
     resp.status_code = 405
+    return resp
+
+@app.errorhandler(500)
+def not_found(error=None):
+    message = {
+        'status': 500,
+        'message': 'Internal error',
+    }
+    resp = jsonify(message)
+    resp.status_code = 500
     return resp

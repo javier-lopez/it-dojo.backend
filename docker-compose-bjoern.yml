@@ -44,5 +44,8 @@ services:
       - .env
     environment:
       - LANG=C.UTF-8
+      - APP_ENVIRONMENT=production
       - APP_ADMIN=admin@it-dojo.io
       - APP_FROM=no-reply@it-dojo.io
+      - MAILGUN_DOMAIN=mail.it-dojo.io
+      - MAILGUN_API=${MAILGUN_API}

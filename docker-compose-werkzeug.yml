@@ -37,5 +37,8 @@ services:
     environment:
       - LANG=C.UTF-8
       - FLASK_APP=run.py
+      - APP_ENVIRONMENT=development
       - APP_ADMIN=admin@it-dojo.io
       - APP_FROM=no-reply@it-dojo.io
+      - MAILGUN_DOMAIN=mail.it-dojo.io
+      - MAILGUN_API=${MAILGUN_API}
