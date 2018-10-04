@@ -1,3 +1,3 @@
 [submodule "templates/static"]
 	path = templates/static
-	url = https://github.com/it-dojo/it-dojo.containers.git
+	url = git@bitbucket.org:nebulosa/it-dojo.containers.git

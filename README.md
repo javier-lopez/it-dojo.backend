@@ -5,7 +5,7 @@ infraestructure + traefik tagging + ingress routing.
 
 To download this repository use:
 
-    $ git clone --recursive https://github.com/it-dojo/it-dojo.backend
+    $ git clone --recursive https://bitbucket.org/nebulosa/it-dojo.backend
 
 If you already downloaded the repository without the submodules, use the
 following to correct:
