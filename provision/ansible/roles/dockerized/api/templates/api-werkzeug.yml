@@ -66,7 +66,7 @@ services:
       - APP_ENVIRONMENT=development
       - APP_ADMIN=admin@it-dojo.io
       - APP_FROM=no-reply@it-dojo.io
-      - MAILGUN_DOMAIN=mail.it-dojo.io
+      - MAILGUN_DOMAIN={{vault_mailgun_domain}}
       - MAILGUN_API={{vault_mailgun_api}}
 
 networks:
