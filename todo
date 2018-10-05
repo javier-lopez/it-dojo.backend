@@ -1,0 +1,21 @@
+crear diferentes y mas variados escenarios
+
+- devops
+    - linux DONE
+    - jenkins
+    - ansible
+    - terraform
+    - ...
+
+- desarrollo
+    - java
+    - nodejs
+    - ...
+
+- bigdata
+    - spark
+    - hadoop
+    - ...
+
+- agregar soporte para testar los resultados de los escenarios
+- agregar soporte a la api para generar usuarios bajo demanda
