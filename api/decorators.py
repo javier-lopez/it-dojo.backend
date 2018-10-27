@@ -2,14 +2,16 @@ from threading import Thread
 from functools import wraps
 from flask     import request, jsonify
 
-def async(f):
+from config    import Config
+
+def threaded(f):
     def wrapper(*args, **kwargs):
         thr = Thread(target=f, args=args, kwargs=kwargs)
         thr.start()
     return wrapper
 
 def check_auth(username, password):
-    return username == 'admin' and password == 'admin'
+    return username == 'key' and password == Config.API_KEY
 
 def authenticate():
     message = {

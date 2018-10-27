@@ -40,5 +40,6 @@ services:
       - APP_ENVIRONMENT=development
       - APP_ADMIN=admin@it-dojo.io
       - APP_FROM=no-reply@it-dojo.io
+      - API_KEY=${API_KEY}
       - MAILGUN_DOMAIN=mail.it-dojo.io
       - MAILGUN_API=${MAILGUN_API}

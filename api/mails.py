@@ -1,9 +1,9 @@
 from flask import render_template
 from flask_mail import Message
 from api import app, mail
-from api.decorators import async
+from api.decorators import threaded
 
-@async
+@threaded
 def send_async_email(api, msg):
     with api.app_context():
         mail.send(msg)

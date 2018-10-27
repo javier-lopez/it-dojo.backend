@@ -6,3 +6,4 @@ mongodb-data
 .env
 .terraform
 *.tfstate
+.env

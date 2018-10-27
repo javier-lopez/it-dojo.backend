@@ -1,11 +1,11 @@
 from api import app
 from api.models import TTY
-from api.decorators import async
+from api.decorators import threaded
 
 from base64 import b64encode
 from sh import tty_controller
 
-@async
+@threaded
 def async_tty_pool(app, template, required_instances):
     with app.app_context():
         available_free_instances = TTY.objects(template=template, active=False, dry_run=False).count()
