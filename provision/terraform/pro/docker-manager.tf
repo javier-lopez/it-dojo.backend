@@ -6,7 +6,7 @@ resource "digitalocean_droplet" "docker-manager" {
     size     = "s-1vcpu-1gb"
     private_networking = true
 
-    ssh_keys = ["${digitalocean_ssh_key.it-dojo-key.id}"]
+    ssh_keys = ["${digitalocean_ssh_key.ssh-key.id}"]
 
     connection {
         user = "root"

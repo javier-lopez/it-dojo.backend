@@ -3,29 +3,31 @@ version: '3.4'
 services:
   mongodb:
     image: aashreys/mongo-auth:latest
-    ports:
-      - "27017:27017"
+    #ports:
+      #- "27017:27017"
     volumes:
       - ./mongodb-data:/data/db
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - AUTH=yes
       - MONGODB_ADMIN_USER=admin
       - MONGODB_ADMIN_PASS=admin
-      - MONGODB_APPLICATION_DATABASE=it-dojo-backend-api
-      - MONGODB_APPLICATION_USER=it-dojo-backend-api
-      - MONGODB_APPLICATION_PASS=it-dojo-backend-api
+      - MONGODB_APPLICATION_DATABASE=app
+      - MONGODB_APPLICATION_USER=app
+      - MONGODB_APPLICATION_PASS=app
 
   nginx:
     image: nginx:1.13.10-alpine
     ports:
       - "5000:80"
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx/default/:/etc/nginx/conf.d
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - it-dojo-backend-api
+      - app
 
-  it-dojo-backend-api:
-    image: registry.it-dojo.io/it-dojo-backend-api:latest
+  app:
+    image: registry.it-dojo.io/api:latest
     build: .
     depends_on:
       - mongodb
@@ -37,6 +39,7 @@ services:
       - ./bin/swarm-exec/swarm-exec:/usr/bin/swarm-exec
       - ./bin/swarm-exec/skpp.py:/usr/bin/skpp.py
       - ./templates:/templates/
+      - /etc/localtime:/etc/localtime:ro
     working_dir: "/usr/src/app"
     restart: on-failure:5
     command: python run.cherry.py
@@ -45,8 +48,9 @@ services:
     environment:
       - LANG=C.UTF-8
       - APP_ENVIRONMENT=production
-      - APP_ADMIN=admin@it-dojo.io
-      - APP_FROM=no-reply@it-dojo.io
+      - APP_DOMAIN=${APP_DOMAIN}
+      - APP_ADMIN=admin@${APP_DOMAIN}
+      - APP_FROM=no-reply@${APP_DOMAIN}
       - API_KEY=${API_KEY}
-      - MAILGUN_DOMAIN=mail.it-dojo.io
+      - MAILGUN_DOMAIN=mail.${APP_DOMAIN}
       - MAILGUN_API=${MAILGUN_API}

@@ -21,18 +21,18 @@ services:
       - AUTH=yes
       - MONGODB_ADMIN_USER=admin
       - MONGODB_ADMIN_PASS=admin
-      - MONGODB_APPLICATION_DATABASE=it-dojo-backend-api
-      - MONGODB_APPLICATION_USER=it-dojo-backend-api
-      - MONGODB_APPLICATION_PASS=it-dojo-backend-api
+      - MONGODB_APPLICATION_DATABASE=app
+      - MONGODB_APPLICATION_USER=app
+      - MONGODB_APPLICATION_PASS=app
 
   nginx:
     image: nginx:1.13.10-alpine
     #ports:
       #- "5000:80"
     volumes:
-      - "{{docker_containers_volume_path}}/api-build/nginx:/etc/nginx/conf.d"
+      - "{{docker_containers_volume_path}}/api-build/nginx/default:/etc/nginx/conf.d"
     depends_on:
-      - it-dojo-backend-api
+      - app
     deploy:
       mode: global
       restart_policy:
@@ -41,18 +41,18 @@ services:
       placement:
         constraints: [node.role == worker]
       labels:
-        - "traefik.backend=it-dojo-backend-api"
-        - "traefik.frontend.rule=Host: {% for subdomain in api_subdomains %}{{subdomain}}.{{domain}}, {% endfor %}"
+        - "traefik.backend=app"
+        - "traefik.frontend.rule=Host: {% for subdomain in app_subdomains %}{{subdomain}}.{{domain}}, {% endfor %}"
         - "traefik.docker.network=traefik_external"
         - "traefik.port=80"
     networks:
       - internal
       - traefik_external
 
-  it-dojo-backend-api:
-    image: "{{api_image}}"
+  app:
+    image: "{{app_image}}"
     ports:
-      - "{{api_tcp_port}}:5000"
+      - "{{app_tcp_port}}:5000"
     depends_on:
       - mongodb
     volumes:
@@ -65,8 +65,8 @@ services:
     working_dir: "/usr/src/app"
     command: python run.bjoern.py
     deploy:
-{% if api_mode is defined %}{% if api_mode[0] == 'replicated' %}
-      replicas: {{api_mode[1]|default("1")}}
+{% if app_mode is defined %}{% if app_mode[0] == 'replicated' %}
+      replicas: {{app_mode[1]|default("1")}}
 {% else %}
       mode: global
 {% endif %}{% endif %}
@@ -82,8 +82,8 @@ services:
     environment:
       - LANG=C.UTF-8
       - APP_ENVIRONMENT=production
-      - APP_ADMIN=admin@it-dojo.io
-      - APP_FROM=no-reply@it-dojo.io
+      - APP_ADMIN=admin@{{domain}}
+      - APP_FROM=no-reply@{{domain}}
       - MAILGUN_DOMAIN={{vault_mailgun_domain}}
       - MAILGUN_API={{vault_mailgun_api}}
 

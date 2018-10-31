@@ -1,7 +1,7 @@
 # Quick Start
 
 Provides/decommise web tty instances on demand, using docker-swarm
-infraestructure + traefik tagging + ingress routing.
+infraestructure + traefik tagging + ingress routing + tmux / gotty.
 
 To download this repository use:
 

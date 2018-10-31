@@ -21,10 +21,10 @@
 - debug: var=docker_containers_volume_paths
 
 - name: create api compose template
-  template: src=api-{{api_wsgi}}.yml dest={{docker_compose_path}}/api-{{api_wsgi}}.yml
+  template: src=api-{{app_wsgi}}.yml dest={{docker_compose_path}}/api-{{app_wsgi}}.yml
 
 - name: deploy api stack
-  command: docker stack deploy -c {{docker_compose_path}}/api-{{api_wsgi}}.yml api
+  command: docker stack deploy -c {{docker_compose_path}}/api-{{app_wsgi}}.yml api
   register: api_exec
   when:
     - inventory_hostname == docker_swarm_primary_manager

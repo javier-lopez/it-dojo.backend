@@ -26,6 +26,37 @@
   authorized_key: user={{item.username}} key="{{lookup('file', '~/.ssh/id_rsa.pub')}}"
   with_items: "{{system_users}}"
 
+- name: set /etc/resolv.conf node file
+  raw: |
+    set -x
+    {# HEREDOCS doesn't seems to work with ansible raw module #}
+    {#
+      cat > /etc/resolv.conf << E=O=F
+
+      {% if resolv_nameservers is defined %}{% for nameserver in resolv_nameservers %}
+      nameserver {{nameserver}}
+      {% endfor %}{% endif %}
+
+      {% if resolv_search is defined %}
+      search {% for search in resolv_search %}{{search}}{% endfor %}
+      {% endif %}
+      E=O=F
+    #}
+
+    {# Therefore here's an ugly workaround #}
+    > /etc/resolv.conf
+    {% if resolv_nameservers is defined %}{% for nameserver in resolv_nameservers %}
+    echo nameserver {{nameserver}} >> /etc/resolv.conf
+    {% endfor %}{% endif %}
+
+    {% if resolv_search is defined %}
+    echo search {% for search in resolv_search %} {{search}}{% endfor %} >> /etc/resolv.conf
+    {% endif %}
+  args:
+    warn: false
+  when:
+    - resolv_nameservers is defined or resolv_search is defined
+
 - name: install ansible dependencies
   include_tasks: install-ansible-dependencies.{{distro}}.yml
 

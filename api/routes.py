@@ -50,7 +50,7 @@ def post_tty():
 
             uri    = {}
             for u in uris:
-                #u => tty-829910.it-dojo.io
+                #u => tty-829910.domain.tld
                 k   = u.split(".")[0] #k => tty-829910
                 k   = k.split("-")[0] #k => tty
                 uri.setdefault(k, u)
@@ -73,7 +73,7 @@ def post_tty():
                 + str(randint(0, 9)) \
                 + str(randint(0, 9)) \
                 + str(randint(0, 9))
-        uri+= ".it-dojo.io"
+        uri+= "." + app.config['APP_DOMAIN']
         uri = { 'tty' : uri }
         readme  = b64encode("README.md is missing".encode('utf-8'))
         dry_run = True
@@ -148,7 +148,7 @@ def delete_task(tty_id):
         abort(404)
 
     if not tty.dry_run:
-        image_id = tty.uri["tty"] # tty-uu3js81.it-dojo.io
+        image_id = tty.uri["tty"] # tty-uu3js81.domain.tld
         image_id = image_id[4:image_id.index(".")] # uu3js81
         stdout   = tty_controller("delete", tty.template, image_id).splitlines()
 
@@ -182,7 +182,7 @@ def post_tty_test(tty_id):
     else:
         script = "/bin/run-tests"
 
-    image_id = tty.uri["tty"] # tty-uu3js81.it-dojo.io
+    image_id = tty.uri["tty"] # tty-uu3js81.domain.tld
     image_id = image_id[4:image_id.index(".")] # uu3js81
 
     stdout  = {}

@@ -1,5 +1,4 @@
 FROM  python:alpine
-LABEL maintainer "IT / DOJO <m@it-dojo.io>"
 
 ENV TERM=xterm
 

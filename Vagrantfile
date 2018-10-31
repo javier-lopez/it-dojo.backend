@@ -8,25 +8,22 @@ DIRNAME     = File.basename(CURRENT_DIR)
 hosts = [
     #10.10.10.1 is configured as bridged between the host and 10.10.1.x guests
     {
-        :name   => "load-balancer.001.it-dojo.io",
-        :box    => "it-dojo/load-balancer",
-        #:box    => "minos/core-16.04",
+        :name   => "001-load-balancer.it-dojo.io",
+        :box    => "minos/core-16.04-load-balancer",
         :groups => ["load-balancer"],
         :ram    => "256", :cpus  => "1",
         :ip     => "10.10.10.11",
     },
     {
-        :name   => "docker-manager.001.it-dojo.io",
-        :box    => "it-dojo/docker",
-        #:box    => "minos/core-16.04",
+        :name   => "001-docker-manager.it-dojo.io",
+        :box    => "minos/core-16.04-docker",
         :groups => ["docker-swarm", "docker-swarm.manager", "nfs"],
         :ram    => "512", :cpus  => "1",
         :ip     => "10.10.10.21",
     },
     {
-        :name   => "docker-worker.001.it-dojo.io",
-        :box    => "it-dojo/docker",
-        #:box    => "minos/core-16.04",
+        :name   => "001-docker-worker.it-dojo.io",
+        :box    => "minos/core-16.04-docker",
         :groups => ["docker-swarm", "docker-swarm.worker"],
         #:ram   => "6144", :cpus  => "1",
         :ram    => "1024", :cpus  => "1",
@@ -167,6 +164,20 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             end
         end
     end
+
+    #vagrant-triggers
+    [:up, :provision].each do |cmd|
+        config.trigger.after cmd, stdout: true do
+            run "./provision/vagrant/enable-dnsproxy"
+        end
+    end
+
+    [:destroy].each do |cmd|
+        config.trigger.after cmd, stdout: true do
+            run "./provision/vagrant/disable-dnsproxy"
+        end
+    end
+
     config.hostmanager.enabled      = true
     config.hostmanager.manage_host  = true
     config.hostmanager.manage_guest = true
@@ -183,17 +194,4 @@ host_counter = 0; Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             ]
         ],
     ]
-
-    #vagrant-triggers
-    [:up, :provision].each do |cmd|
-        config.trigger.after cmd, stdout: true do
-            run "./provision/vagrant/enable-dnsproxy"
-        end
-    end
-
-    [:destroy].each do |cmd|
-        config.trigger.after cmd, stdout: true do
-            run "./provision/vagrant/disable-dnsproxy"
-        end
-    end
 end

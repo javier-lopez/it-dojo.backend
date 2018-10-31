@@ -29,7 +29,7 @@ def async_tty_pool(app, template, required_instances):
 
             uri    = {}
             for u in uris:
-                #u => tty-829910.it-dojo.io
+                #u => tty-829910.domain.tld
                 k   = u.split(".")[0] #k => tty-829910
                 k   = k.split("-")[0] #k => tty
                 uri.setdefault(k, u)
@@ -43,7 +43,7 @@ def async_tty_pool(app, template, required_instances):
 
             new_tty = TTY(
                         template = template,
-                        username = "inactive@it-dojo.io",
+                        username = "inactive@" + app.config['APP_DOMAIN'],
                         uri      = uri,
                         readme   = readme,
                         active   = False,

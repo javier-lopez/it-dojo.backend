@@ -3,8 +3,9 @@ import urllib.parse
 
 class Config(object):
     #general settings
-    APP_ADMIN = os.environ.get('APP_ADMIN') or 'admin@it-dojo.com'
-    APP_FROM  = os.environ.get('APP_FROM')  or 'no-reply@it-dojo.io'
+    APP_DOMAIN = os.environ.get('APP_DOMAIN') or 'it-dojo.io'
+    APP_ADMIN  = os.environ.get('APP_ADMIN')  or 'admin@'    + APP_DOMAIN
+    APP_FROM   = os.environ.get('APP_FROM')   or 'no-reply@' + APP_DOMAIN
 
     API_KEY   = os.environ.get('API_KEY')   or 'default'
 
@@ -12,9 +13,9 @@ class Config(object):
     MONGODB_HOST     = os.environ.get('MONGODB_HOST')     or 'mongodb'
     MONGODB_TCP_PORT = os.environ.get('MONGODB_TCP_PORT') or 27017
     MONGODB_TCP_PORT = int(MONGODB_TCP_PORT)
-    MONGODB_DB       = os.environ.get('MONGODB_DB')       or 'it-dojo-backend-api'
-    MONGODB_USER     = os.environ.get('MONGODB_USER')     or 'it-dojo-backend-api'
-    MONGODB_PASSWD   = os.environ.get('MONGODB_PASSWD')   or 'it-dojo-backend-api'
+    MONGODB_DB       = os.environ.get('MONGODB_DB')       or 'app'
+    MONGODB_USER     = os.environ.get('MONGODB_USER')     or 'app'
+    MONGODB_PASSWD   = os.environ.get('MONGODB_PASSWD')   or 'app'
 
     MONGODB_USER     = urllib.parse.quote_plus(MONGODB_USER)
     MONGODB_PASSWD   = urllib.parse.quote_plus(MONGODB_PASSWD)
