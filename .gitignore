@@ -1,9 +1,14 @@
-.vagrant
 *.retry
+.DS_Store
+*.swp
+.vagrant/
 .vault_pass.txt
-__pycache__
+*.pyc
 mongodb-data
+__pycache__
 .env
 .terraform
 *.tfstate*
-.env
+letsencrypt/accounts/acme*
+letsencrypt/certs/*.pem
+mitogen-*
