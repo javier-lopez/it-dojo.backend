@@ -12,7 +12,7 @@ following to correct:
 
     $ git submodule update --init --recursive
 
-## Setup local environment
+## Setup local docker swarm environment
 
     $ echo  'passwd' > .vault_pass.txt #never add the .vault_pass.txt file to git!
     $ echo  'API_KEY=default' > .env #never add the .env content to git!
@@ -21,7 +21,7 @@ following to correct:
 
     $ ANSIBLE_ARGS='--tags api' vagrant up --provision #for subsecuent runs
 
-## Setup dev environment
+## Setup local dry mode environment
 
     $ ./setup.sh [docker-compose-file] #require docker + docker-compose
 
