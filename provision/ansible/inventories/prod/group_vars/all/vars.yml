@@ -179,4 +179,4 @@ app_wsgi:  'bjoern'
 #app_wsgi: 'gunicorn'
 app_subdomains: ['api']
 app_mode:       ['global']
-app_containers_repo: https://bitbucket.org/nebulosa/it-dojo.containers
+app_containers_repo: https://github.com/javier-lopez/it-dojo.containers
