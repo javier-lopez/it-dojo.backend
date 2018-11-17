@@ -4,17 +4,17 @@ nfs
 docker-swarm
 
 [load-balancer]
-104.248.71.90
+178.128.71.38
 
 [nfs]
-104.248.71.90
+178.128.71.38
 
 [docker-swarm:children]
 docker-swarm.manager
 docker-swarm.worker
 
 [docker-swarm.manager]
-104.248.76.107
+206.189.220.189
 
 [docker-swarm.worker]
-104.248.176.210
+104.248.223.21
